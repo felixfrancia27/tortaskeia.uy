@@ -1,9 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from sqlalchemy import select, func
 from sqlalchemy.orm import selectinload
 from typing import List
 from slugify import slugify
+from decimal import Decimal
 import os
 import uuid
 import aiofiles
@@ -13,13 +14,59 @@ from app.models.user import User
 from app.models.product import Product, ProductImage
 from app.models.category import Category
 from app.models.order import Order, OrderStatus
+from app.models.cake_design import CakeDesign
+from app.models.home_cover import HomeCover
 from app.schemas.product import ProductCreate, ProductUpdate, ProductResponse
 from app.schemas.category import CategoryCreate, CategoryUpdate, CategoryResponse
 from app.schemas.order import OrderResponse, OrderStatusUpdate
+from app.schemas.user import UserResponse, UserUpdateAdmin
+from app.schemas.cake_design import CakeDesignCreate, CakeDesignUpdate, CakeDesignResponse
+from app.schemas.home_cover import HomeCoverCreate, HomeCoverUpdate, HomeCoverResponse
 from app.api.deps import get_admin_user
 from app.core.config import settings
 
 router = APIRouter()
+
+
+# =====================
+# DASHBOARD STATS
+# =====================
+
+@router.get("/stats")
+async def admin_dashboard_stats(
+    db: AsyncSession = Depends(get_db),
+    admin: User = Depends(get_admin_user),
+):
+    """Stats for admin dashboard: products, orders, pending, revenue, users, low stock."""
+    products_count = await db.scalar(select(func.count(Product.id)))
+    orders_count = await db.scalar(select(func.count(Order.id)))
+    users_count = await db.scalar(select(func.count(User.id)))
+    pending = await db.scalar(
+        select(func.count(Order.id)).where(
+            Order.status.in_([
+                OrderStatus.CREADA,
+                OrderStatus.PAGANDO,
+                OrderStatus.PAGADA,
+                OrderStatus.EN_PREPARACION,
+                OrderStatus.LISTA,
+            ])
+        )
+    )
+    revenue_result = await db.execute(
+        select(func.coalesce(func.sum(Order.total), 0)).where(
+            Order.status.in_([OrderStatus.PAGADA, OrderStatus.ENTREGADA])
+        )
+    )
+    revenue = revenue_result.scalar() or Decimal("0")
+    low_stock = await db.scalar(select(func.count(Product.id)).where(Product.stock <= 3))
+    return {
+        "total_products": products_count or 0,
+        "total_orders": orders_count or 0,
+        "pending_orders": pending or 0,
+        "total_revenue": float(revenue),
+        "total_users": users_count or 0,
+        "low_stock_products": low_stock or 0,
+    }
 
 
 # =====================
@@ -231,11 +278,14 @@ async def admin_list_orders(
     db: AsyncSession = Depends(get_db),
     admin: User = Depends(get_admin_user),
     status_filter: OrderStatus = None,
+    limit: int | None = None,
 ):
-    """List all orders."""
+    """List all orders. Optional limit for dashboard."""
     query = select(Order).options(selectinload(Order.items)).order_by(Order.created_at.desc())
     if status_filter:
         query = query.where(Order.status == status_filter)
+    if limit:
+        query = query.limit(limit)
     result = await db.execute(query)
     return result.scalars().all()
 
@@ -263,6 +313,229 @@ async def admin_update_order_status(
         select(Order).where(Order.id == order.id).options(selectinload(Order.items))
     )
     return result.scalar_one()
+
+
+# =====================
+# USERS
+# =====================
+
+@router.get("/users", response_model=List[UserResponse])
+async def admin_list_users(
+    db: AsyncSession = Depends(get_db),
+    admin: User = Depends(get_admin_user),
+):
+    """List all users (admin only)."""
+    result = await db.execute(select(User).order_by(User.created_at.desc()))
+    return result.scalars().all()
+
+
+@router.patch("/users/{user_id}", response_model=UserResponse)
+async def admin_update_user(
+    user_id: int,
+    data: UserUpdateAdmin,
+    db: AsyncSession = Depends(get_db),
+    admin: User = Depends(get_admin_user),
+):
+    """Update user is_active and/or is_admin (admin only). Cannot demote yourself."""
+    if user_id == admin.id and data.is_admin is False:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="No podés quitarte el rol de administrador",
+        )
+    user = await db.get(User, user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
+    if data.is_active is not None:
+        user.is_active = data.is_active
+    if data.is_admin is not None:
+        user.is_admin = data.is_admin
+    await db.commit()
+    await db.refresh(user)
+    return user
+
+
+# =====================
+# CAKE DESIGNS (Crea tu torta)
+# =====================
+
+@router.get("/designs", response_model=List[CakeDesignResponse])
+async def admin_list_designs(
+    db: AsyncSession = Depends(get_db),
+    admin: User = Depends(get_admin_user),
+):
+    """List all cake designs (admin)."""
+    result = await db.execute(
+        select(CakeDesign).order_by(CakeDesign.sort_order, CakeDesign.name)
+    )
+    return result.scalars().all()
+
+
+@router.post("/designs", response_model=CakeDesignResponse)
+async def admin_create_design(
+    data: CakeDesignCreate,
+    db: AsyncSession = Depends(get_db),
+    admin: User = Depends(get_admin_user),
+):
+    """Create a cake design."""
+    slug = data.slug or slugify(data.name)
+    existing = await db.execute(select(CakeDesign).where(CakeDesign.slug == slug))
+    if existing.scalar_one_or_none():
+        slug = f"{slug}-{uuid.uuid4().hex[:4]}"
+    design = CakeDesign(
+        name=data.name,
+        slug=slug,
+        image_url=data.image_url,
+        description=data.description,
+        sort_order=data.sort_order,
+        is_active=data.is_active,
+    )
+    db.add(design)
+    await db.commit()
+    await db.refresh(design)
+    return design
+
+
+@router.get("/designs/{design_id}", response_model=CakeDesignResponse)
+async def admin_get_design(
+    design_id: int,
+    db: AsyncSession = Depends(get_db),
+    admin: User = Depends(get_admin_user),
+):
+    """Get one design."""
+    design = await db.get(CakeDesign, design_id)
+    if not design:
+        raise HTTPException(status_code=404, detail="Diseño no encontrado")
+    return design
+
+
+@router.put("/designs/{design_id}", response_model=CakeDesignResponse)
+async def admin_update_design(
+    design_id: int,
+    data: CakeDesignUpdate,
+    db: AsyncSession = Depends(get_db),
+    admin: User = Depends(get_admin_user),
+):
+    """Update a cake design."""
+    design = await db.get(CakeDesign, design_id)
+    if not design:
+        raise HTTPException(status_code=404, detail="Diseño no encontrado")
+    if data.name is not None:
+        design.name = data.name
+    if data.slug is not None:
+        design.slug = data.slug
+    if data.image_url is not None:
+        design.image_url = data.image_url
+    if data.description is not None:
+        design.description = data.description
+    if data.sort_order is not None:
+        design.sort_order = data.sort_order
+    if data.is_active is not None:
+        design.is_active = data.is_active
+    await db.commit()
+    await db.refresh(design)
+    return design
+
+
+@router.delete("/designs/{design_id}")
+async def admin_delete_design(
+    design_id: int,
+    db: AsyncSession = Depends(get_db),
+    admin: User = Depends(get_admin_user),
+):
+    """Delete a cake design."""
+    design = await db.get(CakeDesign, design_id)
+    if not design:
+        raise HTTPException(status_code=404, detail="Diseño no encontrado")
+    await db.delete(design)
+    await db.commit()
+    return {"status": "deleted"}
+
+
+# =====================
+# HOME COVERS (Portadas del inicio)
+# =====================
+
+@router.get("/home-covers", response_model=List[HomeCoverResponse])
+async def admin_list_home_covers(
+    db: AsyncSession = Depends(get_db),
+    admin: User = Depends(get_admin_user),
+):
+    """List all home hero covers (admin)."""
+    result = await db.execute(
+        select(HomeCover).order_by(HomeCover.sort_order, HomeCover.id)
+    )
+    return result.scalars().all()
+
+
+@router.post("/home-covers", response_model=HomeCoverResponse)
+async def admin_create_home_cover(
+    data: HomeCoverCreate,
+    db: AsyncSession = Depends(get_db),
+    admin: User = Depends(get_admin_user),
+):
+    """Create a home cover."""
+    cover = HomeCover(
+        image_url=data.image_url,
+        alt_text=data.alt_text,
+        sort_order=data.sort_order,
+        is_active=data.is_active,
+    )
+    db.add(cover)
+    await db.commit()
+    await db.refresh(cover)
+    return cover
+
+
+@router.get("/home-covers/{cover_id}", response_model=HomeCoverResponse)
+async def admin_get_home_cover(
+    cover_id: int,
+    db: AsyncSession = Depends(get_db),
+    admin: User = Depends(get_admin_user),
+):
+    """Get one home cover."""
+    cover = await db.get(HomeCover, cover_id)
+    if not cover:
+        raise HTTPException(status_code=404, detail="Portada no encontrada")
+    return cover
+
+
+@router.put("/home-covers/{cover_id}", response_model=HomeCoverResponse)
+async def admin_update_home_cover(
+    cover_id: int,
+    data: HomeCoverUpdate,
+    db: AsyncSession = Depends(get_db),
+    admin: User = Depends(get_admin_user),
+):
+    """Update a home cover."""
+    cover = await db.get(HomeCover, cover_id)
+    if not cover:
+        raise HTTPException(status_code=404, detail="Portada no encontrada")
+    if data.image_url is not None:
+        cover.image_url = data.image_url
+    if data.alt_text is not None:
+        cover.alt_text = data.alt_text
+    if data.sort_order is not None:
+        cover.sort_order = data.sort_order
+    if data.is_active is not None:
+        cover.is_active = data.is_active
+    await db.commit()
+    await db.refresh(cover)
+    return cover
+
+
+@router.delete("/home-covers/{cover_id}")
+async def admin_delete_home_cover(
+    cover_id: int,
+    db: AsyncSession = Depends(get_db),
+    admin: User = Depends(get_admin_user),
+):
+    """Delete a home cover."""
+    cover = await db.get(HomeCover, cover_id)
+    if not cover:
+        raise HTTPException(status_code=404, detail="Portada no encontrada")
+    await db.delete(cover)
+    await db.commit()
+    return {"status": "deleted"}
 
 
 # =====================

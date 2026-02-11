@@ -1,8 +1,10 @@
-import { Component, computed, signal, inject } from '@angular/core';
+import { Component, computed, signal, inject, OnInit } from '@angular/core';
 import { CommonModule, CurrencyPipe } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CartService } from '@app/core/services/cart.service';
+import { ApiService } from '@app/core/services/api.service';
+import { environment } from '@env/environment';
 
 interface SizeOption {
   id: string;
@@ -31,8 +33,8 @@ interface SimpleDesign {
   imageUrl: string;
 }
 
-/** Galería de diseños simples. Imágenes en assets/designs/ */
-const SIMPLE_DESIGNS: SimpleDesign[] = [
+/** Fallback cuando no hay diseños desde la API */
+const SIMPLE_DESIGNS_FALLBACK: SimpleDesign[] = [
   { id: 'clasico-blanco', name: 'Clásico blanco', imageUrl: 'assets/designs/simple-1.png' },
   { id: 'floral-delicate', name: 'Floral delicado', imageUrl: 'assets/designs/simple-2.png' },
   { id: 'frutos-rojos', name: 'Frutas y crema', imageUrl: 'assets/designs/simple-3.png' },
@@ -201,7 +203,7 @@ const SIMPLE_DESIGNS: SimpleDesign[] = [
             @if (designType() === 'simple') {
               <p class="step-help design-gallery-label">Elegí un diseño de la galería</p>
               <div class="design-gallery">
-                @for (d of simpleDesigns; track d.id) {
+                @for (d of simpleDesignsToShow(); track d.id) {
                   <button
                     type="button"
                     class="design-gallery-card"
@@ -828,7 +830,7 @@ const SIMPLE_DESIGNS: SimpleDesign[] = [
     }
   `],
 })
-export class AgendaComponent {
+export class AgendaComponent implements OnInit {
   sizeOptions: SizeOption[] = [
     {
       id: '10',
@@ -892,14 +894,37 @@ export class AgendaComponent {
   selectedSingleFillingId = signal<string | null>(null);
   designType = signal<'simple' | 'elaborado'>('simple');
   designNotes = '';
-  simpleDesigns: SimpleDesign[] = SIMPLE_DESIGNS;
-  /** Por defecto el primer diseño de la galería queda seleccionado */
-  selectedSimpleDesignId = signal<string | null>(SIMPLE_DESIGNS[0]?.id ?? null);
+  /** Diseños cargados desde la API; si está vacío se usa fallback local */
+  designsFromApi = signal<SimpleDesign[]>([]);
+  /** Galería a mostrar: API si hay datos, sino fallback */
+  simpleDesignsToShow = computed(() => {
+    const list = this.designsFromApi();
+    return list.length > 0 ? list : SIMPLE_DESIGNS_FALLBACK;
+  });
+  selectedSimpleDesignId = signal<string | null>(SIMPLE_DESIGNS_FALLBACK[0]?.id ?? null);
   addingToCart = signal(false);
   checkoutError = signal<string | null>(null);
 
   private router = inject(Router);
   private cartService = inject(CartService);
+  private api = inject(ApiService);
+
+  ngOnInit(): void {
+    this.api.get<{ id: number; name: string; image_url: string }[]>('/designs').subscribe({
+      next: (list) => {
+        if (list?.length) {
+          const base = environment.apiUrl.replace(/\/api\/?$/, '');
+          const mapped: SimpleDesign[] = list.map((d) => ({
+            id: String(d.id),
+            name: d.name,
+            imageUrl: d.image_url.startsWith('http') ? d.image_url : (d.image_url.startsWith('/') ? base + d.image_url : base + '/' + d.image_url),
+          }));
+          this.designsFromApi.set(mapped);
+          this.selectedSimpleDesignId.set(String(mapped[0].id));
+        }
+      },
+    });
+  }
 
   /** Al cambiar tamaño, sincronizar rellenos: 10 y 15 = 1 solo, 30 = varios */
   selectSize(sizeId: string): void {
@@ -967,7 +992,7 @@ export class AgendaComponent {
   selectedSimpleDesignName = computed(() => {
     const id = this.selectedSimpleDesignId();
     if (!id) return null;
-    return this.simpleDesigns.find(d => d.id === id)?.name ?? null;
+    return this.simpleDesignsToShow().find(d => d.id === id)?.name ?? null;
   });
 
   /** Si el relleno está seleccionado (10 y 15 = 1 solo, 30 = multi) */
@@ -1089,8 +1114,9 @@ export class AgendaComponent {
     if (this.designType() !== 'simple') return;
     this.checkoutError.set(null);
     this.addingToCart.set(true);
-    const designId = this.selectedSimpleDesignId() ?? this.simpleDesigns[0]?.id;
-    const design = designId ? this.simpleDesigns.find((d) => d.id === designId) : this.simpleDesigns[0];
+    const list = this.simpleDesignsToShow();
+    const designId = this.selectedSimpleDesignId() ?? list[0]?.id;
+    const design = designId ? list.find((d) => d.id === designId) : list[0];
     this.cartService
       .addCustomItem({
         name: this.buildCustomProductName(),

@@ -4,7 +4,7 @@ from sqlalchemy import select
 
 from app.db.session import get_db
 from app.models.user import User
-from app.schemas.user import UserCreate, UserLogin, UserResponse, Token
+from app.schemas.user import UserCreate, UserLogin, UserResponse, Token, ChangePassword, RefreshRequest
 from app.core.security import (
     create_access_token,
     create_refresh_token,
@@ -78,18 +78,18 @@ async def login(
 
 @router.post("/refresh", response_model=Token)
 async def refresh_token(
-    refresh_token: str,
+    body: RefreshRequest,
     db: AsyncSession = Depends(get_db),
 ):
-    """Refresh access token."""
-    payload = decode_token(refresh_token)
+    """Refresh access token using refresh_token in body."""
+    payload = decode_token(body.refresh_token)
     
     if not payload or payload.get("type") != "refresh":
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Token inválido",
         )
-    
+
     user_id = payload.get("sub")
     result = await db.execute(select(User).where(User.id == int(user_id)))
     user = result.scalar_one_or_none()
@@ -112,6 +112,24 @@ async def get_me(
 ):
     """Get current user profile."""
     return user
+
+
+@router.post("/change-password")
+async def change_password(
+    data: ChangePassword,
+    user: User = Depends(get_current_user_required),
+    db: AsyncSession = Depends(get_db),
+):
+    """Change password for the current user. Clears force_password_change if set."""
+    if not verify_password(data.current_password, user.hashed_password):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Contraseña actual incorrecta",
+        )
+    user.hashed_password = get_password_hash(data.new_password)
+    user.force_password_change = False
+    await db.commit()
+    return {"message": "Contraseña actualizada correctamente"}
 
 
 @router.post("/forgot-password")

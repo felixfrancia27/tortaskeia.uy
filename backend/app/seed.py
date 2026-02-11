@@ -6,11 +6,13 @@ import asyncio
 from datetime import datetime
 from decimal import Decimal
 
-from sqlalchemy import select
+from sqlalchemy import select, func
 from app.db.session import AsyncSessionLocal
 from app.models.user import User
 from app.models.category import Category
 from app.models.product import Product, ProductImage
+from app.models.cake_design import CakeDesign
+from app.models.home_cover import HomeCover
 from app.core.security import get_password_hash
 
 
@@ -190,6 +192,23 @@ PRODUCTS = [
     },
 ]
 
+# Diseños para "Crea tu torta" (galería de diseños simples)
+CAKE_DESIGNS = [
+    {"name": "Clásico blanco", "slug": "clasico-blanco", "image_url": "https://images.unsplash.com/photo-1565958011703-44f9829ba187?w=400", "sort_order": 1},
+    {"name": "Floral delicado", "slug": "floral-delicate", "image_url": "https://images.unsplash.com/photo-1558301211-0d8c8ddee6ec?w=400", "sort_order": 2},
+    {"name": "Frutas y crema", "slug": "frutos-rojos", "image_url": "https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=400", "sort_order": 3},
+    {"name": "Chocolate elegante", "slug": "chocolate-elegante", "image_url": "https://images.unsplash.com/photo-1586788680434-30d324b2d46f?w=400", "sort_order": 4},
+    {"name": "Naked vainilla", "slug": "naked-vainilla", "image_url": "https://images.unsplash.com/photo-1621303837174-89787a7d4729?w=400", "sort_order": 5},
+    {"name": "Minimalista", "slug": "minimalista", "image_url": "https://images.unsplash.com/photo-1535254973040-607b474cb50d?w=400", "sort_order": 6},
+]
+
+# Portadas por defecto (imágenes en frontend /assets). Se usan cuando home_covers está vacío.
+DEFAULT_HOME_COVERS = [
+    {"image_url": "/assets/portada.jpg", "alt_text": "Torta decorada con rosas y detalles", "sort_order": 0},
+    {"image_url": "/assets/torta-chocolate.png", "alt_text": "Torta de chocolate artesanal", "sort_order": 1},
+    {"image_url": "/assets/torta-personalizada.png", "alt_text": "Torta personalizada", "sort_order": 2},
+]
+
 ADMIN_USER = {
     "email": "admin@tortaskeia.uy",
     "password": "admin123",  # Change in production!
@@ -197,6 +216,7 @@ ADMIN_USER = {
     "is_admin": True,
     "is_active": True,
     "is_verified": True,
+    "force_password_change": True,  # Force change on first login
 }
 
 
@@ -209,6 +229,37 @@ async def seed_database():
         result = await db.execute(select(Category).limit(1))
         if result.scalar_one_or_none():
             print("Database already seeded, skipping...")
+            # Asegurar al menos 3 portadas (las del frontend: portada.jpg, torta-chocolate, torta-personalizada)
+            count_covers = await db.scalar(select(func.count(HomeCover.id)))
+            if count_covers < len(DEFAULT_HOME_COVERS):
+                to_add = DEFAULT_HOME_COVERS[count_covers:]
+                print(f"Adding {len(to_add)} default home cover(s)...")
+                for item in to_add:
+                    cover = HomeCover(
+                        image_url=item["image_url"],
+                        alt_text=item.get("alt_text"),
+                        sort_order=item.get("sort_order", 0),
+                        is_active=True,
+                    )
+                    db.add(cover)
+                await db.commit()
+                print(f"   - Home covers: {count_covers + len(to_add)} total")
+            # Asegurar los 6 diseños de "Crea tu torta" para que el admin pueda editarlos
+            count_designs = await db.scalar(select(func.count(CakeDesign.id)))
+            if count_designs < len(CAKE_DESIGNS):
+                to_add = CAKE_DESIGNS[count_designs:]
+                print(f"Adding {len(to_add)} default cake design(s)...")
+                for i, d in enumerate(to_add):
+                    design = CakeDesign(
+                        name=d["name"],
+                        slug=d["slug"],
+                        image_url=d["image_url"],
+                        sort_order=d.get("sort_order", count_designs + i),
+                        is_active=True,
+                    )
+                    db.add(design)
+                await db.commit()
+                print(f"   - Cake designs: {count_designs + len(to_add)} total")
             return
         
         # Create admin user
@@ -220,6 +271,7 @@ async def seed_database():
             is_admin=ADMIN_USER["is_admin"],
             is_active=ADMIN_USER["is_active"],
             is_verified=ADMIN_USER["is_verified"],
+            force_password_change=ADMIN_USER.get("force_password_change", False),
             created_at=datetime.utcnow(),
             updated_at=datetime.utcnow(),
         )
@@ -265,11 +317,35 @@ async def seed_database():
                 )
                 db.add(image)
         
+        # Cake designs for Crea tu torta
+        print("Creating cake designs...")
+        for i, d in enumerate(CAKE_DESIGNS):
+            design = CakeDesign(
+                name=d["name"],
+                slug=d["slug"],
+                image_url=d["image_url"],
+                sort_order=d.get("sort_order", i),
+                is_active=True,
+            )
+            db.add(design)
+        
+        # Portadas del inicio (hero) — las 3 que usa el frontend por defecto
+        for item in DEFAULT_HOME_COVERS:
+            cover = HomeCover(
+                image_url=item["image_url"],
+                alt_text=item.get("alt_text"),
+                sort_order=item.get("sort_order", 0),
+                is_active=True,
+            )
+            db.add(cover)
+        
         await db.commit()
         print("Database seeded successfully!")
         print(f"   - Admin: {ADMIN_USER['email']} / {ADMIN_USER['password']}")
         print(f"   - Categories: {len(CATEGORIES)}")
         print(f"   - Products: {len(PRODUCTS)}")
+        print(f"   - Cake designs: {len(CAKE_DESIGNS)}")
+        print(f"   - Home covers: {len(DEFAULT_HOME_COVERS)}")
 
 
 if __name__ == "__main__":

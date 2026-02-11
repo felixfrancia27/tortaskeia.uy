@@ -1,12 +1,12 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from '@app/core/services/auth.service';
 
 @Component({
   selector: 'app-admin-layout',
   standalone: true,
-  imports: [CommonModule, RouterLink, RouterLinkActive, RouterOutlet],
+  imports: [CommonModule, RouterLink, RouterLinkActive],
   template: `
     <div class="admin-layout">
       <aside class="admin-sidebar">
@@ -36,11 +36,35 @@ import { AuthService } from '@app/core/services/auth.service';
             </svg>
             Categorías
           </a>
+          <a routerLink="/admin/diseños" routerLinkActive="active">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>
+            </svg>
+            Diseños
+          </a>
+          <a routerLink="/admin/portadas" routerLinkActive="active">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect width="18" height="18" x="3" y="3" rx="2"/><path d="m3 9 9-6 9 6"/><path d="M3 15h18"/>
+            </svg>
+            Portadas
+          </a>
           <a routerLink="/admin/ordenes" routerLinkActive="active">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/>
             </svg>
             Órdenes
+          </a>
+          <a routerLink="/admin/usuarios" routerLinkActive="active">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+            </svg>
+            Usuarios
+          </a>
+          <a routerLink="/cambiar-password" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            </svg>
+            Cambiar contraseña
           </a>
         </nav>
 
@@ -61,7 +85,7 @@ import { AuthService } from '@app/core/services/auth.service';
       </aside>
 
       <main class="admin-main">
-        <router-outlet></router-outlet>
+        <ng-content></ng-content>
       </main>
     </div>
   `,
@@ -69,13 +93,13 @@ import { AuthService } from '@app/core/services/auth.service';
     .admin-layout {
       display: flex;
       min-height: 100vh;
-      background-color: #F3F4F6;
+      background-color: var(--surface);
     }
 
     .admin-sidebar {
       width: 260px;
-      background-color: var(--ink);
-      color: white;
+      background: var(--surface-white);
+      color: var(--ink);
       display: flex;
       flex-direction: column;
       position: fixed;
@@ -83,29 +107,34 @@ import { AuthService } from '@app/core/services/auth.service';
       left: 0;
       bottom: 0;
       z-index: 100;
+      border-right: 2px solid rgba(var(--brand-rgb), 0.2);
+      box-shadow: 2px 0 12px rgba(0, 0, 0, 0.06);
     }
 
     .sidebar-header {
       padding: var(--space-6);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      border-bottom: 1px solid rgba(var(--brand-rgb), 0.15);
     }
 
     .logo {
       display: flex;
       flex-direction: column;
-      color: white;
+      color: var(--ink);
+      text-decoration: none;
 
       span {
         font-family: var(--font-display);
         font-size: var(--text-xl);
         font-weight: 700;
+        color: var(--ink);
       }
 
       small {
         font-size: var(--text-xs);
-        opacity: 0.7;
+        color: var(--brand);
         text-transform: uppercase;
         letter-spacing: 0.1em;
+        margin-top: 2px;
       }
     }
 
@@ -121,27 +150,29 @@ import { AuthService } from '@app/core/services/auth.service';
         align-items: center;
         gap: var(--space-3);
         padding: var(--space-3) var(--space-4);
-        color: rgba(255, 255, 255, 0.7);
+        color: var(--ink-light);
         border-radius: var(--radius-md);
         font-size: var(--text-sm);
         font-weight: 500;
         transition: all var(--transition-fast);
+        text-decoration: none;
 
         &:hover {
-          background-color: rgba(255, 255, 255, 0.1);
-          color: white;
+          background-color: rgba(var(--brand-rgb), 0.1);
+          color: var(--brand-dark);
         }
 
         &.active {
           background-color: var(--brand);
           color: white;
+          box-shadow: 0 2px 8px rgba(255, 107, 0, 0.25);
         }
       }
     }
 
     .sidebar-footer {
       padding: var(--space-4);
-      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      border-top: 1px solid rgba(var(--brand-rgb), 0.15);
       display: flex;
       flex-direction: column;
       gap: var(--space-2);
@@ -152,7 +183,7 @@ import { AuthService } from '@app/core/services/auth.service';
         align-items: center;
         gap: var(--space-3);
         padding: var(--space-3) var(--space-4);
-        color: rgba(255, 255, 255, 0.7);
+        color: var(--ink-light);
         border-radius: var(--radius-md);
         font-size: var(--text-sm);
         background: none;
@@ -160,10 +191,11 @@ import { AuthService } from '@app/core/services/auth.service';
         cursor: pointer;
         width: 100%;
         text-align: left;
+        text-decoration: none;
 
         &:hover {
-          background-color: rgba(255, 255, 255, 0.1);
-          color: white;
+          background-color: rgba(var(--brand-rgb), 0.1);
+          color: var(--brand-dark);
         }
       }
     }
@@ -172,6 +204,9 @@ import { AuthService } from '@app/core/services/auth.service';
       flex: 1;
       margin-left: 260px;
       padding: var(--space-6);
+      padding-right: calc(var(--space-6) + 220px);
+      padding-top: var(--space-4);
+      background-color: var(--surface);
     }
   `],
 })

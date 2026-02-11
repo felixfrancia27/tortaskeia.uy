@@ -1,7 +1,7 @@
 import { Injectable, signal, computed, inject, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { Router } from '@angular/router';
-import { Observable, tap, catchError, of } from 'rxjs';
+import { Observable, tap, catchError, of, throwError, firstValueFrom } from 'rxjs';
 import { ApiService } from './api.service';
 
 export interface User {
@@ -12,6 +12,7 @@ export interface User {
   address?: string;
   city?: string;
   is_admin: boolean;
+  force_password_change?: boolean;
 }
 
 export interface AuthTokens {
@@ -51,16 +52,32 @@ export class AuthService {
   readonly loading = this.loadingState.asReadonly();
 
   constructor() {
-    if (isPlatformBrowser(this.platformId)) {
-      this.loadStoredAuth();
-    }
+    // La sesión se restaura en APP_INITIALIZER (restoreSession) para que al dar F5 no se desloguee.
   }
 
-  private loadStoredAuth() {
-    const token = localStorage.getItem('access_token');
-    if (token) {
-      this.fetchCurrentUser();
+  /**
+   * Restaura la sesión desde localStorage antes del primer render.
+   * Usado por APP_INITIALIZER para que al dar F5 el usuario siga logueado.
+   */
+  restoreSession(): Promise<void> {
+    if (!isPlatformBrowser(this.platformId)) {
+      return Promise.resolve();
     }
+    const token = localStorage.getItem('access_token');
+    if (!token) {
+      return Promise.resolve();
+    }
+    return firstValueFrom(
+      this.api.get<User>('/auth/me').pipe(
+        tap(user => this.userState.set(user)),
+        catchError(() => {
+          this.userState.set(null);
+          return of(undefined);
+        })
+      )
+    )
+      .then(() => undefined)
+      .catch(() => { this.userState.set(null); });
   }
 
   login(credentials: LoginCredentials): Observable<AuthTokens> {
@@ -76,6 +93,13 @@ export class AuthService {
         throw err;
       })
     );
+  }
+
+  changePassword(currentPassword: string, newPassword: string): Observable<{ message: string }> {
+    return this.api.post<{ message: string }>('/auth/change-password', {
+      current_password: currentPassword,
+      new_password: newPassword,
+    });
   }
 
   register(data: RegisterData): Observable<AuthTokens> {
@@ -112,6 +136,9 @@ export class AuthService {
       catchError(() => of(null))
     ).subscribe(user => {
       this.userState.set(user);
+      if (user?.force_password_change && isPlatformBrowser(this.platformId)) {
+        this.router.navigate(['/cambiar-password'], { queryParams: { returnUrl: '/admin' } });
+      }
     });
   }
 
@@ -120,5 +147,28 @@ export class AuthService {
       return localStorage.getItem('access_token');
     }
     return null;
+  }
+
+  getRefreshToken(): string | null {
+    if (isPlatformBrowser(this.platformId)) {
+      return localStorage.getItem('refresh_token');
+    }
+    return null;
+  }
+
+  /** Refresca los tokens usando el refresh_token. Persiste los nuevos y devuelve los tokens. */
+  refreshTokens(): Observable<AuthTokens> {
+    const refreshToken = this.getRefreshToken();
+    if (!refreshToken) {
+      return throwError(() => new Error('No refresh token'));
+    }
+    return this.api.post<AuthTokens>('/auth/refresh', { refresh_token: refreshToken }).pipe(
+      tap(tokens => this.storeTokens(tokens))
+    );
+  }
+
+  /** Refresca el usuario actual desde la API (p. ej. después de cambiar contraseña). */
+  refreshUser() {
+    this.fetchCurrentUser();
   }
 }

@@ -23,8 +23,8 @@ class Settings(BaseSettings):
     # JWT
     JWT_SECRET: str = "dev-jwt-secret-change-in-production"
     JWT_ALGORITHM: str = "HS256"
-    JWT_ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
-    JWT_REFRESH_TOKEN_EXPIRE_DAYS: int = 7
+    JWT_ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24  # 24 horas
+    JWT_REFRESH_TOKEN_EXPIRE_DAYS: int = 30
     
     # CORS: usamos CORS_ORIGINS (string) para evitar que pydantic-settings intente JSON con ALLOWED_ORIGINS
     FRONTEND_URL: str = "http://localhost:4000"

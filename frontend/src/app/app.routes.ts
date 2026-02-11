@@ -77,6 +77,12 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/auth/forgot-password/forgot-password.component').then(m => m.ForgotPasswordComponent),
     title: 'Recuperar Contraseña | Tortaskeia',
   },
+  {
+    path: 'cambiar-password',
+    loadComponent: () => import('./pages/auth/change-password/change-password.component').then(m => m.ChangePasswordComponent),
+    canActivate: [authGuard],
+    title: 'Cambiar Contraseña | Tortaskeia',
+  },
   // Account Routes
   {
     path: 'mis-pedidos',
@@ -115,9 +121,24 @@ export const routes: Routes = [
         title: 'Categorías | Admin',
       },
       {
+        path: 'diseños',
+        loadComponent: () => import('./pages/admin/designs/designs.component').then(m => m.AdminDesignsComponent),
+        title: 'Diseños | Admin',
+      },
+      {
+        path: 'portadas',
+        loadComponent: () => import('./pages/admin/portadas/portadas.component').then(m => m.AdminPortadasComponent),
+        title: 'Portadas | Admin',
+      },
+      {
         path: 'ordenes',
         loadComponent: () => import('./pages/admin/orders/orders.component').then(m => m.AdminOrdersComponent),
         title: 'Órdenes | Admin',
+      },
+      {
+        path: 'usuarios',
+        loadComponent: () => import('./pages/admin/users/users.component').then(m => m.AdminUsersComponent),
+        title: 'Usuarios | Admin',
       },
     ],
   },

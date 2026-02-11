@@ -34,11 +34,18 @@ import { AuthService } from '@app/core/services/auth.service';
           />
         </a>
 
-        <!-- Right Nav - links + carrito -->
+        <!-- Right Nav - links + admin (si aplica) + carrito -->
         <nav class="nav nav-right">
           <a routerLink="/trabajos" routerLinkActive="active">Trabajos</a>
           <a routerLink="/keia" routerLinkActive="active">Keia</a>
           <a routerLink="/contacto" routerLinkActive="active">Contacto</a>
+          @if (auth.isAdmin()) {
+            <a routerLink="/admin" class="admin-link" aria-label="Panel de administración" title="Panel Admin">
+              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+              </svg>
+            </a>
+          }
           <a routerLink="/carrito" class="cart-link" aria-label="Carrito de compras">
             <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
@@ -91,37 +98,37 @@ import { AuthService } from '@app/core/services/auth.service';
   `,
   styles: [`
     :host {
-      /* Medidas para header: línea blanca como delimitador de colores */
-      --header-height: 140px;
+      /* Header termina exactamente en la línea blanca (sin franja naranja debajo) */
       --logo-size: 110px;
-      --nav-top: 32px; /* menú y logo un poco más abajo */
-      --header-gap: 16px; /* espacio entre letras/logo y la línea blanca */
+      --nav-top: 32px;
+      --header-gap: 16px;
+      --header-height: calc(var(--logo-size) * 0.72 + 2px);
     }
 
     @media (min-width: 768px) {
       :host {
-        --header-height: 158px;
         --logo-size: 126px;
         --nav-top: 36px;
         --header-gap: 18px;
+        --header-height: calc(var(--logo-size) * 0.72 + 2px);
       }
     }
 
     @media (min-width: 1024px) {
       :host {
-        --header-height: 172px;
         --logo-size: 140px;
         --nav-top: 40px;
         --header-gap: 20px;
+        --header-height: calc(var(--logo-size) * 0.72 + 2px);
       }
     }
 
     @media (min-width: 1280px) {
       :host {
-        --header-height: 180px;
         --logo-size: 148px;
         --nav-top: 42px;
         --header-gap: 22px;
+        --header-height: calc(var(--logo-size) * 0.72 + 2px);
       }
     }
 
@@ -132,6 +139,7 @@ import { AuthService } from '@app/core/services/auth.service';
       height: var(--header-height);
       padding: 0;
       background: var(--brand);
+      overflow: visible;
     }
 
     /* Línea blanca a la altura del subrayado; SIEMPRE por debajo del logo (z-index menor) */
@@ -251,6 +259,19 @@ import { AuthService } from '@app/core/services/auth.service';
 
       @media (min-width: 1024px) {
         padding-left: var(--space-10);
+      }
+    }
+
+    .admin-link {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: var(--space-2) var(--space-3);
+      margin-top: -2px;
+      color: white;
+
+      &:hover {
+        opacity: 0.95;
       }
     }
 

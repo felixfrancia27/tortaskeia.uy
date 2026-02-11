@@ -101,14 +101,24 @@ interface GalleryItem {
       padding-bottom: var(--space-16);
     }
 
+    .trabajos-page > .container {
+      padding-top: var(--space-4);
+      @media (min-width: 768px) {
+        padding-top: var(--space-6);
+      }
+    }
+
     /* Hero compacto (igual que tienda) */
     .trabajos-hero {
-      padding: var(--space-4) var(--space-4) var(--space-5);
+      margin-top: var(--space-8);
+      padding: var(--space-6) var(--space-4) var(--space-6);
       margin-bottom: var(--space-8);
       background: var(--surface);
 
       @media (min-width: 768px) {
-        padding: var(--space-5) var(--space-6) var(--space-6);
+        margin-top: var(--space-10);
+        padding: var(--space-8) var(--space-6) var(--space-8);
+        margin-bottom: var(--space-10);
       }
     }
 
@@ -131,11 +141,17 @@ interface GalleryItem {
     .hero-inner {
       position: relative;
       z-index: 1;
-      padding: var(--space-4) var(--space-6);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
       text-align: center;
+      padding: var(--space-5) var(--space-6);
+      min-height: 0;
 
       @media (min-width: 768px) {
-        padding: var(--space-5) var(--space-8);
+        padding: var(--space-6) var(--space-8);
+        min-height: 0;
       }
     }
 
@@ -143,13 +159,13 @@ interface GalleryItem {
       font-family: var(--font-display);
       font-size: var(--text-xl);
       font-weight: 700;
-      margin: 0 0 var(--space-1);
+      margin: 0 0 var(--space-2);
       letter-spacing: 0.03em;
       color: #fff;
 
       @media (min-width: 768px) {
         font-size: var(--text-2xl);
-        margin-bottom: var(--space-2);
+        margin-bottom: var(--space-3);
       }
     }
 
@@ -159,8 +175,6 @@ interface GalleryItem {
       line-height: 1.45;
       color: rgba(255, 255, 255, 0.95);
       max-width: 420px;
-      margin-left: auto;
-      margin-right: auto;
 
       @media (min-width: 768px) {
         font-size: var(--text-base);

@@ -24,6 +24,7 @@ import { WhatsappButtonComponent } from './shared/components/whatsapp-button/wha
     }
     main {
       flex: 1;
+      background-color: var(--surface);
     }
   `],
 })

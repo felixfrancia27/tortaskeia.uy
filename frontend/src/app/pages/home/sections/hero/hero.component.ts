@@ -1,12 +1,14 @@
-import { Component, OnInit, OnDestroy, signal } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { ApiService } from '@app/core/services/api.service';
+import { environment } from '@env/environment';
 
 interface HeroSlide {
   src: string;
   alt?: string;
 }
 
-/** Portadas locales del hero. Podés sumar más imágenes de alta calidad acá. */
+/** Fallback cuando no hay portadas desde la API */
 const LOCAL_HERO_SLIDES: HeroSlide[] = [
   { src: 'assets/portada.jpg', alt: 'Torta decorada con rosas y detalles' },
   { src: 'assets/torta-chocolate.png', alt: 'Torta de chocolate artesanal' },
@@ -288,14 +290,41 @@ const LOCAL_HERO_SLIDES: HeroSlide[] = [
 })
 export class HeroComponent implements OnInit, OnDestroy {
   private intervalId: ReturnType<typeof setInterval> | null = null;
+  private api = inject(ApiService);
 
   readonly currentIndex = signal(0);
   readonly slides = signal<HeroSlide[]>(LOCAL_HERO_SLIDES);
 
-  ngOnInit(): void {
-    if (this.slides().length > 1) {
-      this.intervalId = setInterval(() => this.nextSlide(), 6000);
+  /** Resuelve URL: /assets/ → origen del sitio (frontend); /uploads/ → backend; http → tal cual */
+  private static resolveCoverUrl(imageUrl: string): string {
+    if (!imageUrl) return '';
+    if (imageUrl.startsWith('http')) return imageUrl;
+    if (imageUrl.startsWith('/assets/')) {
+      if (typeof window !== 'undefined') return window.location.origin + imageUrl;
+      return (environment.siteUrl || '').replace(/\/$/, '') + imageUrl;
     }
+    const apiBase = environment.apiUrl.replace(/\/api\/?$/, '');
+    return imageUrl.startsWith('/') ? apiBase + imageUrl : apiBase + '/' + imageUrl;
+  }
+
+  ngOnInit(): void {
+    this.api.get<{ id: number; image_url: string; alt_text?: string }[]>('/home-covers').subscribe({
+      next: (list) => {
+        if (list?.length) {
+          const mapped: HeroSlide[] = list.map((c) => ({
+            src: HeroComponent.resolveCoverUrl(c.image_url),
+            alt: c.alt_text ?? undefined,
+          }));
+          this.slides.set(mapped);
+        }
+        if (this.slides().length > 1)
+          this.intervalId = setInterval(() => this.nextSlide(), 6000);
+      },
+      error: () => {
+        if (this.slides().length > 1)
+          this.intervalId = setInterval(() => this.nextSlide(), 6000);
+      },
+    });
   }
 
   ngOnDestroy(): void {

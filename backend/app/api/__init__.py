@@ -1,11 +1,13 @@
 from fastapi import APIRouter
 
-from .routes import auth, products, categories, cart, orders, admin, payments, health, sitemap, instagram
+from .routes import auth, products, categories, cart, orders, admin, payments, health, sitemap, instagram, designs, home_covers
 
 router = APIRouter()
 
 router.include_router(health.router, tags=["Health"])
 router.include_router(instagram.router, tags=["Instagram"])
+router.include_router(designs.router, prefix="/designs", tags=["Designs"])
+router.include_router(home_covers.router, prefix="/home-covers", tags=["Home Covers"])
 router.include_router(auth.router, prefix="/auth", tags=["Auth"])
 router.include_router(products.router, prefix="/products", tags=["Products"])
 router.include_router(categories.router, prefix="/categories", tags=["Categories"])

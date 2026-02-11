@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends
 from fastapi.responses import Response
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
+from sqlalchemy.orm import selectinload
 from datetime import datetime
 import xml.etree.ElementTree as ET
 
@@ -70,9 +71,11 @@ async def sitemap(db: AsyncSession = Depends(get_db)):
             priority="0.8"
         )
     
-    # Products
+    # Products (eager load images para main_image y evitar MissingGreenlet)
     products_result = await db.execute(
-        select(Product).where(Product.is_active == True)
+        select(Product)
+        .where(Product.is_active == True)
+        .options(selectinload(Product.images))
     )
     products = products_result.scalars().all()
     

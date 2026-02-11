@@ -29,12 +29,28 @@ class UserResponse(UserBase):
     id: int
     is_active: bool
     is_admin: bool
+    force_password_change: bool = False
     address: Optional[str] = None
     city: Optional[str] = None
     created_at: datetime
 
     class Config:
         from_attributes = True
+
+
+class UserUpdateAdmin(BaseModel):
+    """Admin-only: update is_active, is_admin."""
+    is_active: Optional[bool] = None
+    is_admin: Optional[bool] = None
+
+
+class ChangePassword(BaseModel):
+    current_password: str
+    new_password: str
+
+
+class RefreshRequest(BaseModel):
+    refresh_token: str
 
 
 class Token(BaseModel):

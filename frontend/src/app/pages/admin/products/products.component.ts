@@ -112,8 +112,9 @@ interface Product {
 
     .page-header {
       display: flex;
-      justify-content: space-between;
+      flex-direction: column;
       align-items: flex-start;
+      gap: var(--space-4);
       margin-bottom: var(--space-6);
 
       h1 {
