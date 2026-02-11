@@ -1,0 +1,93 @@
+services:
+  # ===========================================
+  # PostgreSQL Database
+  # ===========================================
+  db:
+    image: postgres:16-alpine
+    container_name: tortaskeia-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-tortaskeia}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-tortaskeia_dev_2026}
+      POSTGRES_DB: ${POSTGRES_DB:-tortaskeia}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U tortaskeia -d tortaskeia"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # ===========================================
+  # Backend - FastAPI
+  # ===========================================
+  backend:
+    build:
+      context: ../backend
+      dockerfile: Dockerfile
+    container_name: tortaskeia-backend
+    restart: unless-stopped
+    environment:
+      - DATABASE_URL=${DATABASE_URL:-postgresql+asyncpg://tortaskeia:tortaskeia_dev_2026@db:5432/tortaskeia}
+      - JWT_SECRET=${JWT_SECRET:-dev-jwt-secret-change-in-production}
+      - JWT_ALGORITHM=${JWT_ALGORITHM:-HS256}
+      - JWT_ACCESS_TOKEN_EXPIRE_MINUTES=${JWT_ACCESS_TOKEN_EXPIRE_MINUTES:-30}
+      - JWT_REFRESH_TOKEN_EXPIRE_DAYS=${JWT_REFRESH_TOKEN_EXPIRE_DAYS:-7}
+      - FRONTEND_URL=${FRONTEND_URL:-http://localhost:4200}
+      - CORS_ORIGINS=${CORS_ORIGINS:-http://localhost:4200}
+      - MERCADOPAGO_ACCESS_TOKEN=${MERCADOPAGO_ACCESS_TOKEN:-}
+      - MERCADOPAGO_PUBLIC_KEY=${MERCADOPAGO_PUBLIC_KEY:-}
+      - MERCADOPAGO_WEBHOOK_SECRET=${MERCADOPAGO_WEBHOOK_SECRET:-}
+      - MERCADOPAGO_SUCCESS_URL=${MERCADOPAGO_SUCCESS_URL:-http://localhost:4200/checkout/success}
+      - MERCADOPAGO_FAILURE_URL=${MERCADOPAGO_FAILURE_URL:-http://localhost:4200/checkout/failure}
+      - MERCADOPAGO_PENDING_URL=${MERCADOPAGO_PENDING_URL:-http://localhost:4200/checkout/pending}
+      - STORAGE_TYPE=${STORAGE_TYPE:-local}
+      - UPLOAD_DIR=/app/uploads
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - INSTAGRAM_ACCESS_TOKEN=${INSTAGRAM_ACCESS_TOKEN:-}
+      - INSTAGRAM_USER_ID=${INSTAGRAM_USER_ID:-}
+    volumes:
+      - ../backend:/app
+      - backend_uploads:/app/uploads
+    ports:
+      - "${BACKEND_PORT:-8000}:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    command: >
+      sh -c "alembic upgrade head && 
+             python -m app.seed &&
+             uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload"
+
+  # ===========================================
+  # Frontend - Angular SSR
+  # ===========================================
+  frontend:
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile
+      target: development
+    container_name: tortaskeia-frontend
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=development
+      - API_URL=http://backend:8000/api
+      - SSR_API_URL=http://backend:8000/api
+    volumes:
+      - ../frontend:/app
+      - /app/node_modules
+    ports:
+      - "${FRONTEND_PORT:-4200}:4200"
+    depends_on:
+      - backend
+    command: npm run dev:ssr -- --host 0.0.0.0 --port 4200
+
+volumes:
+  postgres_data:
+  backend_uploads:
+
+networks:
+  default:
+    name: tortaskeia-network
