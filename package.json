@@ -1,0 +1,12 @@
+{
+  "name": "tortaskeia-uy-root",
+  "private": true,
+  "description": "Root for Railway/Vercel - app lives in frontend/",
+  "scripts": {
+    "build": "cd frontend && npm ci && npm run build",
+    "start": "cd frontend && npx serve -s dist/tortaskeia/browser -l ${PORT:-3000}"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
