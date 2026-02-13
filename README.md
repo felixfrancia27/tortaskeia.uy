@@ -3,63 +3,56 @@
 E-commerce de repostería artesanal para Uruguay. Este repo es **solo el frontend** (Angular 19 + SSR).  
 **Backend API:** [tortaskeia.uy-backend](https://github.com/felixfrancia27/tortaskeia.uy-backend) (FastAPI, deploy en Railway).
 
-## 🏗️ Estructura
+## Estructura
 
 ```
 tortaskeia.uy/
-├── frontend/           # Angular 19 + SSR
-│   ├── src/
-│   │   ├── app/       # core, shared, pages
-│   │   └── styles/    # Design tokens, global
-│   └── server.ts      # Express SSR
-├── README.md
-└── .gitignore
+├── src/              # app, styles, index.html, main.ts
+├── angular.json
+├── package.json
+├── vercel.json       # Output: dist/tortaskeia/browser
+├── railway.json
+└── README.md
 ```
 
-## 🚀 Desarrollo local
+## Desarrollo local
 
 ```bash
-cd frontend
 npm install
-
-# Con SSR (recomendado)
+npm start             # ng serve
+# o con SSR
 npm run dev:ssr
-
-# Sin SSR
-npm start
 ```
 
-La app espera la API en `http://localhost:8000/api` (configurable en `frontend/src/environments/environment.ts`). Necesitás el [backend](https://github.com/felixfrancia27/tortaskeia.uy-backend) corriendo en local o una URL de API de staging.
+La app espera la API en `http://localhost:8000/api` (configurable en `src/environments/environment.ts`). Necesitás el [backend](https://github.com/felixfrancia27/tortaskeia.uy-backend) corriendo en local o una URL de API de staging.
 
-## 📦 Build
+## Build
 
 ```bash
-cd frontend
-npm run build        # Build cliente
-npm run build:ssr    # Build SSR
+npm run build         # dist/tortaskeia/browser
+npm run build:ssr     # con server
 ```
 
-## 🌐 Deploy en Vercel
+## Deploy en Vercel
 
 1. Conectar este repo a [Vercel](https://vercel.com).
-2. **Root Directory:** `frontend`.
-3. **Build Command:** `npm run build` (o `npm run build:ssr` si usás SSR en Vercel).
-4. **Output Directory:** `dist/tortaskeia/browser` (cliente) o el que indique tu `angular.json`.
-5. Variables de entorno (opcional, para reemplazar la API en build):
-   - `NG_APP_API_URL` o la que uses en `environment.prod.ts` para la URL del backend (Railway).
+2. **Root Directory:** dejar vacío (el proyecto está en la raíz).
+3. Vercel usa `vercel.json`: `buildCommand`, `outputDirectory: dist/tortaskeia/browser`, `installCommand: npm ci`.
+4. En producción, configurá la URL del backend (Railway) en `src/environments/environment.prod.ts` o con variables de entorno en Vercel.
 
-En producción la app usa por defecto `https://api.tortaskeia.uy/api`. Para apuntar a tu backend en Railway, editá `frontend/src/environments/environment.prod.ts` y poné la URL de tu API (ej. `https://tu-app.up.railway.app/api`), o configurá la variable en Vercel y usala en el build.
+## Deploy en Railway
 
-## 🎨 Design Tokens
+- Build: `npm run build`
+- Start: `npm run serve:static` (sirve `dist/tortaskeia/browser`).
 
-En `frontend/src/styles/tokens.scss`:
+## Design tokens
 
-- `--brand`, `--brand-dark`, `--surface`, `--ink`, `--ink-light`, `--whatsapp`
+En `src/styles/tokens.scss`: `--brand`, `--brand-dark`, `--surface`, `--ink`, `--whatsapp`.
 
-## 📁 Rutas
+## Rutas
 
-- `/` Home · `/tienda` Catálogo · `/tortas/:slug` Producto · `/carrito` · `/checkout` · `/checkout/success` · `/contacto` · `/login` · `/registro` · `/mis-pedidos` · `/admin/*`
+`/` · `/tienda` · `/tortas/:slug` · `/carrito` · `/checkout` · `/checkout/success` · `/contacto` · `/login` · `/registro` · `/mis-pedidos` · `/admin/*`
 
-## 📄 Licencia
+## Licencia
 
 Privado - Tortaskeia.uy © 2026

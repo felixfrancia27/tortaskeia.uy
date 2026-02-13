@@ -583,6 +583,6 @@ export class DashboardComponent implements OnInit {
       entregada: 'Entregada',
       cancelada: 'Cancelada',
     };
-    return labels[status] || status;
+    return labels[(status || '').toLowerCase()] || status;
   }
 }

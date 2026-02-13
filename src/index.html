@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tortaskeia | Repostería Artesanal Uruguay</title>
+  <base href="/">
+  
+  <!-- Primary Meta Tags -->
+  <meta name="title" content="Tortaskeia | Repostería Artesanal Uruguay">
+  <meta name="description" content="Tortas artesanales, cupcakes y boxes dulces para tus celebraciones. Delivery en Montevideo y envíos a todo Uruguay. ¡Pedí tu torta soñada!">
+  <meta name="keywords" content="tortas uruguay, repostería artesanal, cupcakes montevideo, tortas personalizadas, dulces, postres">
+  <meta name="author" content="Tortaskeia">
+  <meta name="robots" content="index, follow">
+  <meta name="language" content="Spanish">
+  <meta name="revisit-after" content="7 days">
+  
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://tortaskeia.uy/">
+  <meta property="og:title" content="Tortaskeia | Repostería Artesanal Uruguay">
+  <meta property="og:description" content="Tortas artesanales, cupcakes y boxes dulces para tus celebraciones. Delivery en Montevideo.">
+  <meta property="og:image" content="https://tortaskeia.uy/assets/images/og-image.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:locale" content="es_UY">
+  <meta property="og:site_name" content="Tortaskeia">
+  
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:url" content="https://tortaskeia.uy/">
+  <meta name="twitter:title" content="Tortaskeia | Repostería Artesanal Uruguay">
+  <meta name="twitter:description" content="Tortas artesanales, cupcakes y boxes dulces para tus celebraciones.">
+  <meta name="twitter:image" content="https://tortaskeia.uy/assets/images/og-image.jpg">
+  
+  <!-- Canonical -->
+  <link rel="canonical" href="https://tortaskeia.uy/">
+  
+  <!-- Theme color -->
+  <meta name="theme-color" content="#F7570C">
+  <meta name="msapplication-TileColor" content="#F7570C">
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="assets/icons/favicon-16x16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="assets/icons/apple-touch-icon.png">
+  <link rel="manifest" href="manifest.webmanifest">
+  
+  <!-- DNS Prefetch & Preconnect for Performance -->
+  <link rel="dns-prefetch" href="//fonts.googleapis.com">
+  <link rel="dns-prefetch" href="//fonts.gstatic.com">
+  <link rel="dns-prefetch" href="//images.unsplash.com">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  
+  <!-- Preload Critical Resources -->
+  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" as="style">
+  
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Critical CSS Inline for Above-the-Fold -->
+  <style>
+    /* Critical CSS for fast first paint */
+    *,*::before,*::after{box-sizing:border-box}
+    body{margin:0;font-family:'Inter',system-ui,-apple-system,sans-serif;background-color:#F9F2E7;color:#5D351D;-webkit-font-smoothing:antialiased}
+    app-root{display:block;min-height:100vh}
+    .loading-skeleton{background:linear-gradient(90deg,#f0e6d9 25%,#e6dcd0 50%,#f0e6d9 75%);background-size:200% 100%;animation:shimmer 1.5s infinite}
+    @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+  </style>
+  
+  <!-- Structured Data - Organization (will be enhanced by Angular) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Bakery",
+    "name": "Tortaskeia",
+    "url": "https://tortaskeia.uy",
+    "logo": "https://tortaskeia.uy/assets/images/logo.png",
+    "description": "Repostería artesanal en Uruguay. Tortas personalizadas para cumpleaños, bodas y eventos especiales.",
+    "address": {
+      "@type": "PostalAddress",
+      "addressLocality": "Montevideo",
+      "addressCountry": "UY"
+    },
+    "telephone": "+598-99-123-456",
+    "priceRange": "$$",
+    "servesCuisine": "Bakery"
+  }
+  </script>
+</head>
+<body>
+  <app-root>
+    <!-- Loading state while Angular bootstraps -->
+    <div style="display:flex;align-items:center;justify-content:center;min-height:100vh;background:#F9F2E7">
+      <div style="text-align:center">
+        <div style="width:60px;height:60px;border:4px solid #F9F2E7;border-top-color:#F7570C;border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 16px"></div>
+        <p style="color:#5D351D;font-family:Inter,sans-serif;font-size:14px;margin:0">Cargando...</p>
+      </div>
+    </div>
+    <style>@keyframes spin{to{transform:rotate(360deg)}}</style>
+  </app-root>
+  
+  <!-- Noscript fallback -->
+  <noscript>
+    <div style="padding:40px;text-align:center;font-family:sans-serif">
+      <h1>Tortaskeia</h1>
+      <p>Por favor, habilitá JavaScript para usar este sitio.</p>
+      <p>Contactanos por WhatsApp: <a href="https://wa.me/59899123456">+598 99 123 456</a></p>
+    </div>
+  </noscript>
+</body>
+</html>

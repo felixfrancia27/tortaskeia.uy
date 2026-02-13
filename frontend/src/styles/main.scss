@@ -2,8 +2,8 @@
 // MAIN STYLES - Tortaskeia
 // ===========================================
 
-// Tokens first
-@import 'tokens';
+// Tokens first (Sass module: @use instead of deprecated @import)
+@use 'tokens';
 
 // Tailwind
 @tailwind base;

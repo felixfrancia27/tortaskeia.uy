@@ -689,9 +689,14 @@ export class ProductComponent implements OnInit, OnDestroy {
       },
       this.quantity(),
       this.notes() || undefined
-    );
-
-    this.addedToCart.set(true);
-    setTimeout(() => this.addedToCart.set(false), 2000);
+    ).subscribe({
+      next: () => {
+        this.addedToCart.set(true);
+        setTimeout(() => this.addedToCart.set(false), 2000);
+      },
+      error: () => {
+        // El servicio ya hace fetchCartFromApi en error; opcional: mostrar mensaje
+      },
+    });
   }
 }

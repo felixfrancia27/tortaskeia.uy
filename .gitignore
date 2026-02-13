@@ -1,6 +1,8 @@
-# Repos separados: backend e infra no se trackean en este repo (frontend)
+# Repos separados: backend e infra no se trackean en este repo
 backend/
 infra/
+# Carpeta vieja (Angular ahora está en la raíz)
+frontend/
 
 # Dependencies
 node_modules/

@@ -113,18 +113,20 @@ export class OrdersService {
     return this.api.get<PaymentStatus>(`/payments/status/${orderNumber}`);
   }
 
-  // Check if order can be paid
+  // Check if order can be paid (backend puede devolver status en MAYÚSCULAS)
   canPay(order: Order): boolean {
-    return ['creada', 'fallida'].includes(order.status);
+    const s = (order.status || '').toLowerCase();
+    return ['creada', 'fallida'].includes(s);
   }
 
   // Check if order is completed
   isCompleted(order: Order): boolean {
-    return ['pagada', 'en_preparacion', 'lista', 'entregada'].includes(order.status);
+    const s = (order.status || '').toLowerCase();
+    return ['pagada', 'en_preparacion', 'lista', 'entregada'].includes(s);
   }
 
   getStatusLabel(status: OrderStatus): string {
-    const labels: Record<OrderStatus, string> = {
+    const labels: Record<string, string> = {
       creada: 'Creada',
       pagando: 'Procesando pago',
       pagada: 'Pagada',
@@ -134,11 +136,11 @@ export class OrdersService {
       entregada: 'Entregada',
       cancelada: 'Cancelada',
     };
-    return labels[status] || status;
+    return labels[(status || '').toLowerCase()] || status || '';
   }
 
   getStatusColor(status: OrderStatus): string {
-    const colors: Record<OrderStatus, string> = {
+    const colors: Record<string, string> = {
       creada: '#6366F1',
       pagando: '#F59E0B',
       pagada: '#10B981',
@@ -148,6 +150,6 @@ export class OrdersService {
       entregada: '#10B981',
       cancelada: '#6B7280',
     };
-    return colors[status] || '#6B7280';
+    return colors[(status || '').toLowerCase()] || '#6B7280';
   }
 }

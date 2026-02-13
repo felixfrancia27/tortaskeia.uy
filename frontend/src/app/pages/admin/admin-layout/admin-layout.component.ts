@@ -106,7 +106,7 @@ import { AuthService } from '@app/core/services/auth.service';
       top: 0;
       left: 0;
       bottom: 0;
-      z-index: 100;
+      z-index: 350;
       border-right: 2px solid rgba(var(--brand-rgb), 0.2);
       box-shadow: 2px 0 12px rgba(0, 0, 0, 0.06);
     }

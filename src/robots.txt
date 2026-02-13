@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://tortaskeia.uy/sitemap.xml
+
+# Disallow admin and private pages
+Disallow: /admin/
+Disallow: /checkout/
+Disallow: /api/

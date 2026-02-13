@@ -1189,8 +1189,29 @@ export class CheckoutComponent implements OnInit {
     this.ordersService.createOrder(orderData).subscribe({
       next: (order) => {
         this.cart.clearCart();
-        this.router.navigate(['/checkout/success'], {
-          queryParams: { order: order.order_number },
+        // Integración Mercado Pago: crear preferencia y redirigir al checkout de MP
+        this.ordersService.createPaymentPreference(order.order_number).subscribe({
+          next: (pref) => {
+            if (pref.init_point) {
+              window.location.href = pref.init_point;
+              return;
+            }
+            this.router.navigate(['/checkout/success'], {
+              queryParams: { order: order.order_number },
+            });
+          },
+          error: (err) => {
+            // MP no configurado o error: ir a success y pasar mensaje del backend para diagnosticar
+            const detail = (err.error?.detail as string) || '';
+            const paymentError = detail.length > 280 ? detail.slice(0, 277) + '...' : detail;
+            this.router.navigate(['/checkout/success'], {
+              queryParams: {
+                order: order.order_number,
+                payment_unavailable: '1',
+                ...(paymentError && { payment_error: paymentError }),
+              },
+            });
+          },
         });
       },
       error: (err) => {

@@ -102,6 +102,12 @@ import { OrdersService, Order } from '@app/core/services/orders.service';
                 </span>
                 <p class="status-info">Te notificaremos cuando haya cambios en tu pedido.</p>
                 
+                @if (paymentUnavailable()) {
+                  <p class="payment-unavailable-msg">El pago con Mercado Pago no estuvo disponible al confirmar. Podés intentar pagar ahora con el botón de abajo o contactarnos por WhatsApp.</p>
+                }
+                @if (paymentError()) {
+                  <p class="payment-error-msg">{{ paymentError() }}</p>
+                }
                 @if (showPayButton()) {
                   <button 
                     class="btn-pay" 
@@ -116,7 +122,7 @@ import { OrdersService, Order } from '@app/core/services/orders.service';
                         <rect width="20" height="14" x="2" y="5" rx="2"/>
                         <line x1="2" x2="22" y1="10" y2="10"/>
                       </svg>
-                      Pagar con Mercado Pago
+                      {{ paymentUnavailable() ? 'Intentar pagar con Mercado Pago' : 'Pagar con Mercado Pago' }}
                     }
                   </button>
                 }
@@ -327,6 +333,25 @@ import { OrdersService, Order } from '@app/core/services/orders.service';
       font-size: var(--text-xs);
     }
 
+    .payment-unavailable-msg {
+      font-size: var(--text-sm);
+      color: var(--ink-light);
+      margin-bottom: var(--space-3);
+      padding: var(--space-2) var(--space-3);
+      background: rgba(var(--brand-rgb), 0.08);
+      border-radius: var(--radius-md);
+    }
+
+    .payment-error-msg {
+      font-size: var(--text-sm);
+      color: #b91c1c;
+      margin-bottom: var(--space-3);
+      padding: var(--space-2) var(--space-3);
+      background: #fef2f2;
+      border-radius: var(--radius-md);
+      border: 1px solid #fecaca;
+    }
+
     .btn-pay {
       display: inline-flex;
       align-items: center;
@@ -426,12 +451,23 @@ export class SuccessComponent implements OnInit {
   order = signal<Order | null>(null);
   loading = signal(true);
   processingPayment = signal(false);
+  paymentUnavailable = signal(false);
+  /** Mensaje de error del backend (ej. al crear preferencia) para mostrar causa del fallo */
+  paymentError = signal<string | null>(null);
 
-  // Show pay button if order is in certain states
   showPayButton = signal(false);
 
   ngOnInit() {
     this.route.queryParams.subscribe(params => {
+      this.paymentUnavailable.set(params['payment_unavailable'] === '1');
+      const errParam = params['payment_error'];
+      if (errParam) {
+        try {
+          this.paymentError.set(decodeURIComponent(errParam));
+        } catch {
+          this.paymentError.set('Error al crear el pago.');
+        }
+      }
       const orderNumber = params['order'];
       if (orderNumber) {
         this.loadOrder(orderNumber);
@@ -447,8 +483,8 @@ export class SuccessComponent implements OnInit {
         this.order.set(order);
         this.loading.set(false);
         // Show pay button for orders that can be paid
-        const payableStatuses = ['creada', 'fallida'];
-        this.showPayButton.set(payableStatuses.includes(order.status));
+        const s = (order.status || '').toLowerCase();
+        this.showPayButton.set(['creada', 'fallida'].includes(s));
       },
       error: () => {
         this.loading.set(false);
@@ -469,7 +505,9 @@ export class SuccessComponent implements OnInit {
       },
       error: (err) => {
         this.processingPayment.set(false);
-        alert(err.error?.detail || 'Error al procesar el pago. Por favor intentá de nuevo.');
+        const detail = err.error?.detail || 'Error al procesar el pago. Por favor intentá de nuevo.';
+        this.paymentError.set(detail);
+        alert(detail);
       },
     });
   }

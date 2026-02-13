@@ -862,7 +862,13 @@ export class ShopComponent implements OnInit {
       slug: product.slug,
       price: product.price,
       main_image: product.main_image,
+    }).subscribe({
+      next: () => {
+        // Opcional: mostrar toast "Agregado al carrito"
+      },
+      error: () => {
+        // El carrito se refresca en catchError del servicio; se puede mostrar mensaje de error
+      },
     });
-    // TODO: Show toast notification
   }
 }

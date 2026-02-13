@@ -396,7 +396,7 @@ export class AdminOrdersComponent implements OnInit {
       entregada: 'Entregada',
       cancelada: 'Cancelada',
     };
-    return labels[status] || status;
+    return labels[(status || '').toLowerCase()] || status;
   }
 
   updateStatus(order: Order, event: Event) {
