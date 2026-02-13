@@ -1,3 +1,7 @@
+# Repos separados: backend e infra no se trackean en este repo (frontend)
+backend/
+infra/
+
 # Dependencies
 node_modules/
 __pycache__/
