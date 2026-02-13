@@ -26,12 +26,13 @@ export interface Cart {
   item_count: number;
 }
 
-/** Respuesta del backend (coincide con Cart) */
+/** Respuesta del backend (coincide con Cart; session_id viene cuando es carrito invitado) */
 interface CartApiResponse {
   id: number;
   items: CartItem[];
   total: number;
   item_count: number;
+  session_id?: string;
 }
 
 @Injectable({
@@ -81,10 +82,21 @@ export class CartService {
     this.api
       .get<CartApiResponse>('/cart')
       .pipe(
-        tap((res) => this.cartState.set(this.normalizeCart(res))),
+        tap((res) => {
+          this.saveSessionIdFromResponse(res);
+          this.cartState.set(this.normalizeCart(res));
+        }),
         catchError(() => of(null))
       )
       .subscribe();
+  }
+
+  /** Si el backend devuelve session_id (carrito invitado), guardarlo para próximas peticiones */
+  private saveSessionIdFromResponse(res: CartApiResponse | null): void {
+    if (res?.session_id && isPlatformBrowser(this.platformId)) {
+      this.sessionId = res.session_id;
+      localStorage.setItem('cart_session_id', res.session_id);
+    }
   }
 
   private normalizeCart(res: CartApiResponse): Cart {
@@ -102,7 +114,10 @@ export class CartService {
   addItem(product: CartItem['product'], quantity: number = 1, notes?: string): Observable<CartApiResponse | null> {
     const body = { product_id: product.id, quantity, notes: notes || null };
     return this.api.post<CartApiResponse>('/cart/items', body).pipe(
-      tap((res) => this.cartState.set(this.normalizeCart(res))),
+      tap((res) => {
+        this.saveSessionIdFromResponse(res ?? null);
+        if (res) this.cartState.set(this.normalizeCart(res));
+      }),
       map((res) => res),
       catchError(() => {
         this.fetchCartFromApi();
@@ -130,7 +145,10 @@ export class CartService {
       notes: params.notes ?? null,
     };
     return this.api.post<CartApiResponse>('/cart/items/custom', body).pipe(
-      tap((res) => this.cartState.set(this.normalizeCart(res))),
+      tap((res) => {
+        this.saveSessionIdFromResponse(res ?? null);
+        if (res) this.cartState.set(this.normalizeCart(res));
+      }),
       map((res) => res),
       catchError(() => {
         this.fetchCartFromApi();
@@ -146,7 +164,12 @@ export class CartService {
     }
     this.api
       .put<CartApiResponse>(`/cart/items/${itemId}`, { quantity })
-      .pipe(tap((res) => this.cartState.set(this.normalizeCart(res))))
+      .pipe(
+        tap((res) => {
+          this.saveSessionIdFromResponse(res ?? null);
+          if (res) this.cartState.set(this.normalizeCart(res));
+        })
+      )
       .subscribe({
         error: () => this.fetchCartFromApi(),
       });
@@ -155,7 +178,12 @@ export class CartService {
   removeItem(itemId: number): void {
     this.api
       .delete<CartApiResponse>(`/cart/items/${itemId}`)
-      .pipe(tap((res) => this.cartState.set(this.normalizeCart(res))))
+      .pipe(
+        tap((res) => {
+          this.saveSessionIdFromResponse(res ?? null);
+          if (res) this.cartState.set(this.normalizeCart(res));
+        })
+      )
       .subscribe({
         error: () => this.fetchCartFromApi(),
       });
@@ -166,7 +194,7 @@ export class CartService {
     this.api
       .delete<CartApiResponse>('/cart')
       .pipe(
-        tap((res) => res && this.cartState.set(this.normalizeCart(res))),
+        tap((res) => this.saveSessionIdFromResponse(res ?? null)),
         catchError(() => of(null))
       )
       .subscribe();
