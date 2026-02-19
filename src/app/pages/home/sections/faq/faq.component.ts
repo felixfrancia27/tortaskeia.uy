@@ -93,6 +93,12 @@ interface FaqItem {
       padding: 0 var(--space-4);
     }
 
+    @media (max-width: 480px) {
+      .faq-list {
+        padding: 0 var(--space-3);
+      }
+    }
+
     .faq-item {
       border-bottom: 1px solid #E8DFD4;
     }
@@ -104,11 +110,13 @@ interface FaqItem {
       justify-content: space-between;
       gap: var(--space-4);
       padding: var(--space-4) 0;
+      min-height: 44px;
       background: none;
       border: none;
       text-align: left;
       cursor: pointer;
       transition: color var(--transition-fast);
+      -webkit-tap-highlight-color: transparent;
 
       @media (min-width: 768px) {
         padding: var(--space-5) 0;

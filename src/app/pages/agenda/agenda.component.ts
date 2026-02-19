@@ -479,12 +479,14 @@ const SIMPLE_DESIGNS_FALLBACK: SimpleDesign[] = [
     .size-card {
       border-radius: var(--radius-lg);
       padding: var(--space-4) var(--space-4) var(--space-3);
+      min-height: 44px;
       border: 2px solid #f3e2d5;
       background: #fffaf5;
       text-align: left;
       cursor: pointer;
       transition: all var(--transition-fast);
       display: flex;
+      -webkit-tap-highlight-color: transparent;
       flex-direction: column;
       justify-content: space-between;
       gap: var(--space-3);
@@ -558,6 +560,7 @@ const SIMPLE_DESIGNS_FALLBACK: SimpleDesign[] = [
       border-radius: 999px;
       border: 1px solid #e4d4c4;
       padding: 6px 12px;
+      min-height: 44px;
       background: #fff;
       font-size: var(--text-xs);
       cursor: pointer;
@@ -565,6 +568,7 @@ const SIMPLE_DESIGNS_FALLBACK: SimpleDesign[] = [
       align-items: center;
       gap: var(--space-1);
       transition: all var(--transition-fast);
+      -webkit-tap-highlight-color: transparent;
     }
 
     .chip:hover {
@@ -781,14 +785,18 @@ const SIMPLE_DESIGNS_FALLBACK: SimpleDesign[] = [
     }
 
     .btn-primary-full {
-      display: block;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       width: 100%;
       text-align: center;
       margin-top: var(--space-5);
       padding: var(--space-3) var(--space-4);
+      min-height: 44px;
       background: var(--brand);
       color: #fff;
       border-radius: var(--radius-md);
+      -webkit-tap-highlight-color: transparent;
       font-weight: 600;
       text-decoration: none;
       text-transform: uppercase;

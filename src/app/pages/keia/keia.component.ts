@@ -91,6 +91,12 @@ import { RouterLink } from '@angular/router';
       margin-bottom: var(--space-8);
       background: var(--surface);
 
+      @media (max-width: 480px) {
+        padding: var(--space-4) var(--space-3);
+        margin-top: var(--space-4);
+        margin-bottom: var(--space-6);
+      }
+
       @media (min-width: 768px) {
         margin-top: var(--space-10);
         padding: var(--space-8) var(--space-6) var(--space-8);
@@ -271,14 +277,25 @@ import { RouterLink } from '@angular/router';
 
       .btn-primary,
       .btn-secondary {
-        display: inline-block;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
         padding: var(--space-3) var(--space-6);
+        min-height: 44px;
         font-size: var(--text-sm);
         font-weight: 600;
         border-radius: var(--radius-md);
         text-decoration: none;
         transition: all var(--transition-fast);
         margin: 0 var(--space-2) var(--space-2);
+      }
+
+      @media (max-width: 480px) {
+        .btn-primary,
+        .btn-secondary {
+          width: 100%;
+          margin: 0 0 var(--space-2);
+        }
       }
 
       .btn-primary {

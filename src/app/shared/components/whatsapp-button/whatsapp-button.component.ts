@@ -19,11 +19,14 @@ import { Component } from '@angular/core';
   styles: [`
     .whatsapp-btn {
       position: fixed;
-      bottom: 24px;
-      right: 24px;
-      width: 60px;
-      height: 60px;
+      bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+      right: calc(24px + env(safe-area-inset-right, 0px));
+      width: 56px;
+      height: 56px;
+      min-width: 48px;
+      min-height: 48px;
       background-color: var(--whatsapp);
+      -webkit-tap-highlight-color: transparent;
       color: white;
       border-radius: 50%;
       display: flex;

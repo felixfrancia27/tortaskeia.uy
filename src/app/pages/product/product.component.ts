@@ -185,6 +185,7 @@ import { SeoService } from '@app/core/services/seo.service';
     .breadcrumb {
       display: flex;
       align-items: center;
+      flex-wrap: wrap;
       gap: var(--space-2);
       font-size: var(--text-sm);
       color: var(--ink-light);
@@ -436,6 +437,7 @@ import { SeoService } from '@app/core/services/seo.service';
         justify-content: center;
         gap: var(--space-2);
         padding: var(--space-3) var(--space-6);
+        min-height: 44px;
         background-color: var(--brand);
         color: white;
         border: none;
@@ -444,6 +446,7 @@ import { SeoService } from '@app/core/services/seo.service';
         font-weight: 600;
         cursor: pointer;
         transition: all var(--transition-fast);
+        -webkit-tap-highlight-color: transparent;
 
         &:hover:not(:disabled) {
           background-color: var(--brand-dark);
@@ -488,12 +491,14 @@ import { SeoService } from '@app/core/services/seo.service';
         gap: var(--space-2);
         width: 100%;
         padding: var(--space-3);
+        min-height: 44px;
         background-color: var(--whatsapp);
         color: white;
         border-radius: var(--radius-md);
         font-weight: 600;
         margin-bottom: var(--space-6);
         transition: opacity var(--transition-fast);
+        -webkit-tap-highlight-color: transparent;
 
         &:hover {
           opacity: 0.9;

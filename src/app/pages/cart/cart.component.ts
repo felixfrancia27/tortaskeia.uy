@@ -100,6 +100,10 @@ import { CartService, CartItem } from '@app/core/services/cart.service';
       padding: var(--space-24) 0 var(--space-16);
       min-height: 70vh;
       background-color: var(--surface);
+
+      @media (max-width: 480px) {
+        padding: var(--space-8) 0 var(--space-10);
+      }
     }
 
     h1 {
@@ -225,8 +229,10 @@ import { CartService, CartItem } from '@app/core/services/cart.service';
       justify-self: end;
 
       button {
-        width: 32px;
-        height: 32px;
+        width: 44px;
+        height: 44px;
+        min-width: 44px;
+        min-height: 44px;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -235,6 +241,7 @@ import { CartService, CartItem } from '@app/core/services/cart.service';
         border-radius: var(--radius-md);
         font-size: var(--text-lg);
         cursor: pointer;
+        -webkit-tap-highlight-color: transparent;
 
         &:hover:not(:disabled) {
           background: #E0D5C8;
@@ -265,8 +272,10 @@ import { CartService, CartItem } from '@app/core/services/cart.service';
     }
 
     .remove-btn {
-      width: 36px;
-      height: 36px;
+      width: 44px;
+      height: 44px;
+      min-width: 44px;
+      min-height: 44px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -276,6 +285,7 @@ import { CartService, CartItem } from '@app/core/services/cart.service';
       border-radius: var(--radius-md);
       cursor: pointer;
       transition: all var(--transition-fast);
+      -webkit-tap-highlight-color: transparent;
 
       &:hover {
         background: #FECACA;
@@ -321,9 +331,12 @@ import { CartService, CartItem } from '@app/core/services/cart.service';
     }
 
     .btn-checkout {
-      display: block;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       width: 100%;
       padding: var(--space-4);
+      min-height: 44px;
       background-color: var(--brand);
       color: white;
       text-align: center;
@@ -338,9 +351,12 @@ import { CartService, CartItem } from '@app/core/services/cart.service';
     }
 
     .btn-continue {
-      display: block;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       width: 100%;
       padding: var(--space-3);
+      min-height: 44px;
       text-align: center;
       color: var(--ink-light);
       font-size: var(--text-sm);

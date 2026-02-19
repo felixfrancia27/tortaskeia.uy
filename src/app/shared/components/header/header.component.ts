@@ -105,6 +105,13 @@ import { AuthService } from '@app/core/services/auth.service';
       --header-height: calc(var(--logo-size) * 0.72 + 2px);
     }
 
+    @media (max-width: 480px) {
+      :host {
+        --logo-size: 90px;
+        --nav-top: 28px;
+      }
+    }
+
     @media (min-width: 768px) {
       :host {
         --logo-size: 126px;
@@ -332,11 +339,16 @@ import { AuthService } from '@app/core/services/auth.service';
       display: flex;
       flex-direction: column;
       gap: 5px;
+      align-items: center;
+      justify-content: center;
       background: none;
       border: none;
-      padding: 8px;
+      padding: 10px;
+      min-width: 44px;
+      min-height: 44px;
       cursor: pointer;
       z-index: 1001;
+      -webkit-tap-highlight-color: transparent;
 
       @media (min-width: 768px) {
         display: none;
@@ -371,7 +383,7 @@ import { AuthService } from '@app/core/services/auth.service';
       bottom: 0;
       background: var(--brand);
       z-index: 1000;
-      padding: 100px var(--space-6) var(--space-6);
+      padding: calc(100px + env(safe-area-inset-top, 0px)) var(--space-6) calc(var(--space-6) + env(safe-area-inset-bottom, 0px));
       overflow-y: auto;
 
       @media (min-width: 768px) {
@@ -382,14 +394,16 @@ import { AuthService } from '@app/core/services/auth.service';
     .mobile-nav {
       display: flex;
       flex-direction: column;
-      gap: var(--space-1);
+      gap: 0;
 
       a, button {
-        display: block;
+        display: flex;
+        align-items: center;
         color: white;
         font-size: var(--text-lg);
         font-weight: 500;
         padding: var(--space-3) 0;
+        min-height: 44px;
         border-bottom: 1px solid rgba(255, 255, 255, 0.2);
         background: none;
         border-top: none;
@@ -398,6 +412,7 @@ import { AuthService } from '@app/core/services/auth.service';
         text-align: left;
         width: 100%;
         cursor: pointer;
+        -webkit-tap-highlight-color: transparent;
       }
 
       .mobile-logout {

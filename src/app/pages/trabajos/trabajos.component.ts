@@ -115,6 +115,12 @@ interface GalleryItem {
       margin-bottom: var(--space-8);
       background: var(--surface);
 
+      @media (max-width: 480px) {
+        padding: var(--space-4) var(--space-3);
+        margin-top: var(--space-4);
+        margin-bottom: var(--space-6);
+      }
+
       @media (min-width: 768px) {
         margin-top: var(--space-10);
         padding: var(--space-8) var(--space-6) var(--space-8);
@@ -197,6 +203,7 @@ interface GalleryItem {
 
     .filter-btn {
       padding: var(--space-2) var(--space-4);
+      min-height: 44px;
       font-size: var(--text-sm);
       font-weight: 600;
       color: var(--ink);
@@ -205,6 +212,7 @@ interface GalleryItem {
       border-radius: var(--radius-full);
       cursor: pointer;
       transition: all var(--transition-fast);
+      -webkit-tap-highlight-color: transparent;
 
       @media (min-width: 768px) {
         padding: var(--space-2) var(--space-5);

@@ -178,14 +178,19 @@ import { AuthService } from '@app/core/services/auth.service';
 
       .toggle-password {
         position: absolute;
-        right: 12px;
-        top: 50%;
-        transform: translateY(-50%);
+        right: 0;
+        top: 0;
+        bottom: 0;
+        width: 48px;
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         background: none;
         border: none;
         color: var(--ink-light);
         cursor: pointer;
-        padding: 4px;
+        -webkit-tap-highlight-color: transparent;
 
         &:hover {
           color: var(--ink);

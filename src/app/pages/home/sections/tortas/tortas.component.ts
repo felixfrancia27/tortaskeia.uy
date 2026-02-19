@@ -104,6 +104,11 @@ interface Product {
       margin: 0 auto;
       padding: 0 var(--space-4);
 
+      @media (max-width: 480px) {
+        padding: 0 var(--space-3);
+        gap: var(--space-3);
+      }
+
       @media (min-width: 640px) {
         gap: var(--space-6);
       }
@@ -182,8 +187,11 @@ interface Product {
     }
 
     .btn-product {
-      display: inline-block;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
       padding: 8px 18px;
+      min-height: 44px;
       background-color: var(--brand);
       color: white;
       font-family: var(--font-sans);

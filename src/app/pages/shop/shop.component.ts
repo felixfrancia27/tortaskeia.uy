@@ -208,6 +208,12 @@ interface Category {
       margin-bottom: var(--space-8);
       background: var(--surface);
 
+      @media (max-width: 480px) {
+        padding: var(--space-4) var(--space-3);
+        margin-top: var(--space-4);
+        margin-bottom: var(--space-6);
+      }
+
       @media (min-width: 768px) {
         margin-top: var(--space-10);
         padding: var(--space-8) var(--space-6) var(--space-8);
@@ -345,6 +351,7 @@ interface Category {
         width: 100%;
         text-align: left;
         padding: var(--space-2) var(--space-3);
+        min-height: 44px;
         font-size: var(--text-sm);
         color: var(--ink-light);
         background: none;
@@ -352,6 +359,7 @@ interface Category {
         border-radius: var(--radius-md);
         cursor: pointer;
         transition: all var(--transition-fast);
+        -webkit-tap-highlight-color: transparent;
 
         &:hover {
           background-color: var(--surface);
@@ -422,6 +430,10 @@ interface Category {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
       gap: var(--space-4);
+
+      @media (max-width: 480px) {
+        gap: var(--space-3);
+      }
 
       @media (min-width: 640px) {
         gap: var(--space-6);
@@ -539,6 +551,7 @@ interface Category {
     .btn-secondary-sm {
       flex: 1;
       padding: var(--space-2);
+      min-height: 44px;
       font-size: var(--text-xs);
       font-weight: 600;
       border-radius: var(--radius-md);
@@ -547,6 +560,7 @@ interface Category {
       transition: all var(--transition-fast);
       text-align: center;
       text-decoration: none;
+      -webkit-tap-highlight-color: transparent;
 
       @media (min-width: 768px) {
         font-size: var(--text-sm);
@@ -604,12 +618,14 @@ interface Category {
 
     .page-btn {
       padding: var(--space-2) var(--space-4);
+      min-height: 44px;
       font-size: var(--text-sm);
       color: var(--ink);
       background: white;
       border: 1px solid #E0D5C8;
       border-radius: var(--radius-md);
       cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
 
       &:hover:not(:disabled) {
         border-color: var(--brand);
@@ -629,8 +645,10 @@ interface Category {
     }
 
     .page-num {
-      width: 36px;
-      height: 36px;
+      width: 44px;
+      height: 44px;
+      min-width: 44px;
+      min-height: 44px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -640,6 +658,7 @@ interface Category {
       border: 1px solid #E0D5C8;
       border-radius: var(--radius-md);
       cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
 
       &:hover {
         border-color: var(--brand);

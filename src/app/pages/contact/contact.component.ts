@@ -189,6 +189,12 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
       margin-bottom: var(--space-8);
       background: var(--surface);
 
+      @media (max-width: 480px) {
+        padding: var(--space-4) var(--space-3);
+        margin-top: var(--space-4);
+        margin-bottom: var(--space-6);
+      }
+
       @media (min-width: 768px) {
         margin-top: var(--space-10);
         padding: var(--space-8) var(--space-6) var(--space-8);

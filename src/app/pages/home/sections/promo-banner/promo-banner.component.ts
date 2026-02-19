@@ -111,6 +111,12 @@ import { RouterLink } from '@angular/router';
       font-size: 11px;
       color: var(--ink-light);
 
+      @media (max-width: 480px) {
+        flex-direction: column;
+        gap: var(--space-2);
+        text-align: center;
+      }
+
       @media (min-width: 768px) {
         font-size: 12px;
         gap: var(--space-4) var(--space-6);

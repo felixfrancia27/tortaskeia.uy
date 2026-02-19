@@ -248,6 +248,11 @@ interface InstagramProfile {
       margin: 0 auto;
       padding: 0 var(--space-4);
 
+      @media (max-width: 480px) {
+        padding: 0 var(--space-3);
+        gap: var(--space-3);
+      }
+
       @media (min-width: 640px) {
         grid-template-columns: repeat(3, 1fr);
         gap: var(--space-5);

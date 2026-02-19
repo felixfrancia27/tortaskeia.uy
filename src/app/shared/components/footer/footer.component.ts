@@ -116,7 +116,11 @@ import { RouterLink } from '@angular/router';
       z-index: 2;
       max-width: var(--container-xl);
       margin: 0 auto;
-      padding: 0 var(--space-6);
+      padding: 0 var(--space-4);
+
+      @media (max-width: 480px) {
+        padding: 0 var(--space-3);
+      }
 
       @media (min-width: 768px) {
         padding: 0 var(--space-8);
@@ -203,6 +207,13 @@ import { RouterLink } from '@angular/router';
       opacity: 0.85;
       transition: opacity var(--transition-fast);
       white-space: nowrap;
+      padding: var(--space-2) 0;
+
+      @media (max-width: 768px) {
+        min-height: 44px;
+        display: inline-flex;
+        align-items: center;
+      }
 
       @media (min-width: 768px) {
         font-size: 15px;
@@ -225,16 +236,21 @@ import { RouterLink } from '@angular/router';
       display: flex;
       align-items: center;
       justify-content: center;
-      width: 36px;
-      height: 36px;
+      width: 44px;
+      height: 44px;
+      min-width: 44px;
+      min-height: 44px;
       border-radius: 50%;
       background: rgba(255, 255, 255, 0.15);
       color: white;
       transition: all var(--transition-fast);
+      -webkit-tap-highlight-color: transparent;
 
       @media (min-width: 768px) {
         width: 38px;
         height: 38px;
+        min-width: 38px;
+        min-height: 38px;
       }
 
       &:hover {

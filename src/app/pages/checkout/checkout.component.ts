@@ -418,6 +418,7 @@ interface CalendarDay {
 
     .steps {
       display: flex;
+      flex-wrap: wrap;
       gap: var(--space-4);
 
       .step {
@@ -768,6 +769,7 @@ interface CalendarDay {
 
     .form-actions {
       display: flex;
+      flex-wrap: wrap;
       justify-content: space-between;
       gap: var(--space-3);
       margin-top: var(--space-6);
@@ -775,8 +777,20 @@ interface CalendarDay {
       border-top: 1px solid #E0D5C8;
     }
 
+    @media (max-width: 480px) {
+      .form-actions {
+        flex-direction: column;
+      }
+      .form-actions .btn-primary,
+      .form-actions .btn-secondary {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+
     .btn-primary, .btn-secondary {
       padding: var(--space-3) var(--space-5);
+      min-height: 44px;
       border-radius: var(--radius-md);
       font-weight: 600;
       cursor: pointer;
@@ -784,6 +798,7 @@ interface CalendarDay {
       display: inline-flex;
       align-items: center;
       gap: var(--space-2);
+      -webkit-tap-highlight-color: transparent;
     }
 
     .btn-primary {

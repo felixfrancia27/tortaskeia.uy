@@ -71,11 +71,15 @@ const LOCAL_HERO_SLIDES: HeroSlide[] = [
       position: relative;
       overflow: hidden;
       width: 100%;
-      min-height: 520px;
+      min-height: 420px;
       display: flex;
       align-items: center;
       margin: 0;
       padding: 0;
+
+      @media (min-width: 480px) {
+        min-height: 520px;
+      }
 
       @media (min-width: 768px) {
         min-height: 580px;
@@ -135,8 +139,12 @@ const LOCAL_HERO_SLIDES: HeroSlide[] = [
       z-index: 2;
       max-width: var(--container-xl);
       margin: 0 auto;
-      padding: var(--space-8) var(--space-4) var(--space-16);
+      padding: var(--space-6) var(--space-4) var(--space-12);
       width: 100%;
+
+      @media (min-width: 480px) {
+        padding: var(--space-8) var(--space-4) var(--space-16);
+      }
 
       @media (min-width: 768px) {
         padding: var(--space-10) var(--space-6) var(--space-20);
@@ -191,9 +199,13 @@ const LOCAL_HERO_SLIDES: HeroSlide[] = [
       font-size: 0.95rem;
       font-weight: 600;
       padding: var(--space-3) var(--space-6);
+      min-height: 44px;
       border-radius: var(--radius-lg);
       text-decoration: none;
       transition: background-color 0.25s ease, color 0.25s ease, box-shadow 0.25s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
 
       @media (min-width: 768px) {
         font-size: 1rem;
@@ -240,12 +252,18 @@ const LOCAL_HERO_SLIDES: HeroSlide[] = [
     .hero-dot {
       width: 10px;
       height: 10px;
+      min-width: 44px;
+      min-height: 44px;
       border-radius: 50%;
       border: 2px solid rgba(255, 255, 255, 0.8);
       background: transparent;
       cursor: pointer;
       padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       transition: background 0.2s ease, transform 0.2s ease;
+      -webkit-tap-highlight-color: transparent;
 
       &:hover {
         background: rgba(255, 255, 255, 0.4);
