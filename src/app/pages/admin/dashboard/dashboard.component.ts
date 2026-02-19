@@ -256,9 +256,13 @@ interface OrderSummary {
 
     .stats-grid {
       display: grid;
-      grid-template-columns: repeat(2, 1fr);
+      grid-template-columns: 1fr;
       gap: var(--space-4);
       margin-bottom: var(--space-8);
+
+      @media (min-width: 420px) {
+        grid-template-columns: repeat(2, 1fr);
+      }
 
       @media (min-width: 768px) {
         grid-template-columns: repeat(3, 1fr);
@@ -390,6 +394,7 @@ interface OrderSummary {
         color: var(--ink);
         text-decoration: none;
         border: 1px solid rgba(var(--brand-rgb), 0.15);
+        min-height: 44px;
 
         &:hover {
           transform: translateY(-2px);
@@ -481,16 +486,25 @@ interface OrderSummary {
 
       .orders-table-wrap {
         overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
       }
 
       .orders-table {
         width: 100%;
+        min-width: 320px;
         border-collapse: collapse;
 
         th, td {
           padding: var(--space-3) var(--space-4);
           text-align: left;
           border-bottom: 1px solid #eee;
+        }
+
+        @media (max-width: 768px) {
+          th, td {
+            padding: var(--space-2) var(--space-3);
+            font-size: var(--text-sm);
+          }
         }
 
         th {

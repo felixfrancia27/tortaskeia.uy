@@ -127,6 +127,16 @@ interface Order {
         color: var(--ink-light);
         font-size: var(--text-sm);
       }
+
+      @media (max-width: 768px) {
+        .filters {
+          width: 100%;
+        }
+        .filters .input {
+          width: 100%;
+          min-height: 44px;
+        }
+      }
     }
 
     .input {
@@ -164,6 +174,8 @@ interface Order {
       display: flex;
       justify-content: space-between;
       align-items: center;
+      flex-wrap: wrap;
+      gap: var(--space-2);
       padding: var(--space-4);
       background-color: #F9FAFB;
       border-bottom: 1px solid #E5E7EB;
@@ -289,6 +301,7 @@ interface Order {
 
     .status-select {
       padding: var(--space-2) var(--space-3);
+      min-height: 44px;
       border: 1px solid #E0D5C8;
       border-radius: var(--radius-md);
       font-size: var(--text-sm);
@@ -297,6 +310,10 @@ interface Order {
       &:focus {
         outline: none;
         border-color: var(--brand);
+      }
+
+      @media (max-width: 768px) {
+        width: 100%;
       }
     }
 

@@ -138,6 +138,7 @@ interface CakeDesign {
       align-items: center;
       gap: var(--space-2);
       padding: var(--space-3) var(--space-5);
+      min-height: 44px;
       background-color: var(--brand);
       color: white;
       border: none;
@@ -151,8 +152,14 @@ interface CakeDesign {
 
     .designs-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      grid-template-columns: 1fr;
       gap: var(--space-4);
+    }
+
+    @media (min-width: 420px) {
+      .designs-grid {
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      }
     }
 
     .design-card {
@@ -202,14 +209,17 @@ interface CakeDesign {
     }
 
     .action-btn {
-      width: 36px;
-      height: 36px;
+      width: 44px;
+      height: 44px;
+      min-width: 44px;
+      min-height: 44px;
       display: flex;
       align-items: center;
       justify-content: center;
       border-radius: var(--radius-md);
       border: none;
       cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
     }
     .action-btn.edit { background: #DBEAFE; color: #2563EB; }
     .action-btn.edit:hover { background: #BFDBFE; }

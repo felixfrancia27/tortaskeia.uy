@@ -155,6 +155,7 @@ interface Category {
       align-items: center;
       gap: var(--space-2);
       padding: var(--space-3) var(--space-5);
+      min-height: 44px;
       background-color: var(--brand);
       color: white;
       border: none;
@@ -187,6 +188,20 @@ interface Category {
       align-items: center;
       gap: var(--space-4);
       box-shadow: var(--shadow-sm);
+      flex-wrap: wrap;
+    }
+
+    @media (max-width: 768px) {
+      .category-card {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .category-meta {
+        order: 2;
+      }
+      .category-actions {
+        justify-content: flex-end;
+      }
     }
 
     .category-info {
@@ -235,8 +250,10 @@ interface Category {
     }
 
     .action-btn {
-      width: 36px;
-      height: 36px;
+      width: 44px;
+      height: 44px;
+      min-width: 44px;
+      min-height: 44px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -244,6 +261,7 @@ interface Category {
       border: none;
       cursor: pointer;
       transition: all var(--transition-fast);
+      -webkit-tap-highlight-color: transparent;
 
       &.edit {
         background-color: #DBEAFE;
@@ -292,6 +310,8 @@ interface Category {
       max-width: 480px;
       max-height: 90vh;
       overflow-y: auto;
+      margin: var(--space-4);
+      max-height: calc(100vh - var(--space-8));
     }
 
     .modal-header {

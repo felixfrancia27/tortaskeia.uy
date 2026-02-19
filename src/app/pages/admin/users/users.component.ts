@@ -129,6 +129,7 @@ interface AdminUser {
 
     .table-wrap {
       overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
       background: white;
       border-radius: var(--radius-xl);
       box-shadow: var(--shadow-sm);
@@ -136,12 +137,20 @@ interface AdminUser {
 
     .users-table {
       width: 100%;
+      min-width: 320px;
       border-collapse: collapse;
 
       th, td {
         padding: var(--space-4);
         text-align: left;
         border-bottom: 1px solid #eee;
+      }
+
+      @media (max-width: 768px) {
+        th, td {
+          padding: var(--space-2) var(--space-3);
+          font-size: var(--text-sm);
+        }
       }
 
       th {
@@ -153,13 +162,15 @@ interface AdminUser {
       }
 
       .toggle-btn {
-        padding: 4px 10px;
+        padding: 10px 14px;
+        min-height: 44px;
         border-radius: var(--radius-md);
         font-size: var(--text-sm);
         font-weight: 500;
         border: 1px solid #ddd;
         cursor: pointer;
         background: white;
+        -webkit-tap-highlight-color: transparent;
 
         &.active, &.is-admin {
           background: #D1FAE5;

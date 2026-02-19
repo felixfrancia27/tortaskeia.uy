@@ -309,14 +309,20 @@ interface Category {
 
     .form-row {
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: 1fr;
       gap: var(--space-4);
+    }
+
+    @media (min-width: 480px) {
+      .form-row {
+        grid-template-columns: 1fr 1fr;
+      }
     }
 
     .input {
       width: 100%;
       padding: var(--space-3) var(--space-4);
-      font-size: var(--text-sm);
+      font-size: 16px;
       border: 1px solid #E0D5C8;
       border-radius: var(--radius-md);
       background-color: white;
@@ -330,6 +336,11 @@ interface Category {
       &.textarea {
         resize: vertical;
         min-height: 100px;
+      }
+
+      @media (max-width: 768px) {
+        min-height: 44px;
+        font-size: 16px;
       }
     }
 
@@ -359,11 +370,24 @@ interface Category {
 
     .form-actions {
       display: flex;
+      flex-wrap: wrap;
       justify-content: flex-end;
       gap: var(--space-3);
       margin-top: var(--space-6);
       padding-top: var(--space-6);
       border-top: 1px solid #E0D5C8;
+    }
+
+    @media (max-width: 768px) {
+      .form-actions {
+        flex-direction: column;
+      }
+      .form-actions .btn-primary,
+      .form-actions .btn-secondary {
+        width: 100%;
+        justify-content: center;
+        min-height: 44px;
+      }
     }
 
     .btn-primary {

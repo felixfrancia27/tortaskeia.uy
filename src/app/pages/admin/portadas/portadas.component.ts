@@ -150,6 +150,7 @@ interface HomeCover {
       align-items: center;
       gap: var(--space-2);
       padding: var(--space-3) var(--space-5);
+      min-height: 44px;
       background-color: var(--brand);
       color: white;
       border: none;
@@ -163,8 +164,14 @@ interface HomeCover {
 
     .covers-list {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      grid-template-columns: 1fr;
       gap: var(--space-4);
+    }
+
+    @media (min-width: 420px) {
+      .covers-list {
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      }
     }
 
     .cover-card {
@@ -214,8 +221,10 @@ interface HomeCover {
       border-top: 1px solid #eee;
     }
     .action-btn {
-      width: 36px;
-      height: 36px;
+      width: 44px;
+      height: 44px;
+      min-width: 44px;
+      min-height: 44px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -223,6 +232,7 @@ interface HomeCover {
       border: none;
       cursor: pointer;
       font-size: 1rem;
+      -webkit-tap-highlight-color: transparent;
     }
     .action-btn.edit { background: #DBEAFE; color: #2563EB; }
     .action-btn.delete { background: #FEE2E2; color: #DC2626; }

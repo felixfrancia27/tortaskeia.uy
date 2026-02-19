@@ -135,6 +135,7 @@ interface Product {
       align-items: center;
       gap: var(--space-2);
       padding: var(--space-3) var(--space-5);
+      min-height: 44px;
       background-color: var(--brand);
       color: white;
       border-radius: var(--radius-md);
@@ -159,16 +160,26 @@ interface Product {
       border-radius: var(--radius-xl);
       overflow: hidden;
       box-shadow: var(--shadow-sm);
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
     }
 
     .products-table {
       width: 100%;
+      min-width: 480px;
       border-collapse: collapse;
 
       th, td {
         padding: var(--space-4);
         text-align: left;
         border-bottom: 1px solid #E5E7EB;
+      }
+
+      @media (max-width: 768px) {
+        th, td {
+          padding: var(--space-2) var(--space-3);
+          font-size: var(--text-sm);
+        }
       }
 
       th {
@@ -239,8 +250,10 @@ interface Product {
     }
 
     .action-btn {
-      width: 32px;
-      height: 32px;
+      width: 44px;
+      height: 44px;
+      min-width: 44px;
+      min-height: 44px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -248,6 +261,7 @@ interface Product {
       border: none;
       cursor: pointer;
       transition: all var(--transition-fast);
+      -webkit-tap-highlight-color: transparent;
 
       &.edit {
         background-color: #DBEAFE;
