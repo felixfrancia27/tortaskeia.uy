@@ -4,6 +4,7 @@ import { PromoBannerComponent } from './sections/promo-banner/promo-banner.compo
 import { HowToOrderComponent } from './sections/how-to-order/how-to-order.component';
 import { TortasComponent } from './sections/tortas/tortas.component';
 import { CreacionesComponent } from './sections/creaciones/creaciones.component';
+import { EventosPersonalizadosComponent } from './sections/eventos-personalizados/eventos-personalizados.component';
 import { FaqComponent } from './sections/faq/faq.component';
 import { SeoService } from '@app/core/services/seo.service';
 
@@ -16,6 +17,7 @@ import { SeoService } from '@app/core/services/seo.service';
     HowToOrderComponent,
     TortasComponent,
     CreacionesComponent,
+    EventosPersonalizadosComponent,
     FaqComponent,
   ],
   template: `
@@ -23,6 +25,7 @@ import { SeoService } from '@app/core/services/seo.service';
     <app-promo-banner />
     <app-how-to-order />
     <app-creaciones />
+    <app-eventos-personalizados />
     <app-tortas />
     <app-faq />
   `,
