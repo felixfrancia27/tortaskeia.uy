@@ -61,6 +61,11 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/agenda/agenda.component').then(m => m.AgendaComponent),
     title: 'Crea tu Torta | Tortaskeia',
   },
+  {
+    path: 'eventos/:tipo',
+    loadComponent: () => import('./pages/evento/evento.component').then(m => m.EventoComponent),
+    title: 'Evento | Tortaskeia',
+  },
   // Auth Routes
   {
     path: 'login',

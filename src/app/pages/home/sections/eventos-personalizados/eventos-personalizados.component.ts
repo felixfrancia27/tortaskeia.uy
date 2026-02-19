@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { RouterLink } from '@angular/router';
 
 interface EventoItem {
   id: string;
@@ -13,6 +14,7 @@ interface EventoItem {
 @Component({
   selector: 'app-eventos-personalizados',
   standalone: true,
+  imports: [RouterLink],
   template: `
     <section class="eventos-section" aria-labelledby="eventos-title">
       <div class="eventos-accent" aria-hidden="true"></div>
@@ -26,8 +28,7 @@ interface EventoItem {
 
         <div class="eventos-grid">
           @for (item of eventos; track item.id) {
-            <article
-              class="evento-card"
+            <a [routerLink]="['/eventos', item.id]" class="evento-card evento-card-link"
               [class.float-a]="item.floatStyle === 'a'"
               [class.float-b]="item.floatStyle === 'b'"
               [class.float-c]="item.floatStyle === 'c'"
@@ -48,7 +49,7 @@ interface EventoItem {
                   <p class="evento-subtitle">{{ item.subtitle }}</p>
                 </div>
               </div>
-            </article>
+            </a>
           }
         </div>
       </div>
@@ -134,6 +135,12 @@ interface EventoItem {
         gap: var(--space-6);
         padding: 0 var(--space-6);
       }
+    }
+
+    .evento-card-link {
+      text-decoration: none;
+      color: inherit;
+      display: block;
     }
 
     .evento-card {
