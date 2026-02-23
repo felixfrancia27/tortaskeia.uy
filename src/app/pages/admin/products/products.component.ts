@@ -3,6 +3,7 @@ import { CommonModule, CurrencyPipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { AdminLayoutComponent } from '../admin-layout/admin-layout.component';
 import { ApiService } from '@app/core/services/api.service';
+import { resolveImageUrl } from '@app/core/utils/image-url';
 
 interface Product {
   id: number;
@@ -56,7 +57,7 @@ interface Product {
                     <td>
                       <div class="product-cell">
                         <img 
-                          [src]="product.main_image || 'assets/images/placeholder.jpg'" 
+                          [src]="resolveImageUrl(product.main_image || (product as any).images?.[0]?.url) || 'assets/images/placeholder.jpg'" 
                           [alt]="product.name"
                         />
                         <div>
@@ -300,6 +301,7 @@ interface Product {
 })
 export class AdminProductsComponent implements OnInit {
   private api = inject(ApiService);
+  readonly resolveImageUrl = resolveImageUrl;
 
   products = signal<Product[]>([]);
   loading = signal(true);
