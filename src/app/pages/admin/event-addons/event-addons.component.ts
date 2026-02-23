@@ -46,7 +46,7 @@ export interface EventAddOn {
               [class.active]="selectedType() === t"
               (click)="selectType(t)"
             >
-              {{ eventTypeLabels[t as EventoTipo] }}
+              {{ getEventTypeLabel(t) }}
             </button>
           }
         </div>
@@ -336,6 +336,10 @@ export class AdminEventAddonsComponent implements OnInit {
         this.error.set(err?.error?.message || 'No se pudieron cargar los ítems. ¿El backend tiene el endpoint GET /admin/event-addons?');
       },
     });
+  }
+
+  getEventTypeLabel(key: string): string {
+    return this.eventTypeLabels[key as EventoTipo] ?? key;
   }
 
   formatPrice(value: number): string {
