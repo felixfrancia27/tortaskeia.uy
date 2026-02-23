@@ -148,18 +148,6 @@ interface Category {
 
               <div class="form-row">
                 <div class="form-group">
-                  <label for="stock">Stock *</label>
-                  <input 
-                    type="number" 
-                    id="stock" 
-                    formControlName="stock"
-                    class="input"
-                    placeholder="10"
-                    min="0"
-                  />
-                </div>
-
-                <div class="form-group">
                   <label for="sku">SKU</label>
                   <input 
                     type="text" 
@@ -610,7 +598,6 @@ export class ProductFormComponent implements OnInit {
     description: [''],
     price: [null, [Validators.required, Validators.min(0)]],
     compare_price: [null],
-    stock: [0, [Validators.required, Validators.min(0)]],
     sku: [''],
     has_sizes: [false],
     sizes: this.fb.array<FormGroup>([]),

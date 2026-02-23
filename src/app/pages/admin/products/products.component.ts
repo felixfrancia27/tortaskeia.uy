@@ -14,7 +14,6 @@ interface Product {
   name: string;
   slug: string;
   price: number;
-  stock: number;
   is_active: boolean;
   is_featured: boolean;
   main_image?: string;
@@ -51,7 +50,6 @@ interface Product {
                 <tr>
                   <th>Producto</th>
                   <th>Precio</th>
-                  <th>Stock</th>
                   <th>Estado</th>
                   <th>Acciones</th>
                 </tr>
@@ -74,9 +72,6 @@ interface Product {
                       </div>
                     </td>
                     <td>{{ product.price | currency:'UYU':'$':'1.0-0' }}</td>
-                    <td>
-                      <span [class.low-stock]="product.stock < 5">{{ product.stock }}</span>
-                    </td>
                     <td>
                       <span class="badge" [class.active]="product.is_active" [class.inactive]="!product.is_active">
                         {{ product.is_active ? 'Activo' : 'Inactivo' }}
@@ -245,11 +240,6 @@ interface Product {
       }
     }
 
-    .low-stock {
-      color: #DC2626;
-      font-weight: 600;
-    }
-
     .actions {
       display: flex;
       gap: var(--space-2);
@@ -330,10 +320,10 @@ export class AdminProductsComponent implements OnInit {
       error: () => {
         // Load mock data
         this.products.set([
-          { id: 1, name: 'Torta de Chocolate', slug: 'torta-chocolate', price: 1200, stock: 10, is_active: true, is_featured: true, main_image: 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=100' },
-          { id: 2, name: 'Torta de Vainilla', slug: 'torta-vainilla', price: 1350, stock: 8, is_active: true, is_featured: true, main_image: 'https://images.unsplash.com/photo-1565958011703-44f9829ba187?w=100' },
-          { id: 3, name: 'Torta Red Velvet', slug: 'torta-red-velvet', price: 1400, stock: 2, is_active: true, is_featured: false, main_image: 'https://images.unsplash.com/photo-1586788680434-30d324b2d46f?w=100' },
-          { id: 4, name: 'Box Dulce Sorpresa', slug: 'box-dulce-sorpresa', price: 950, stock: 15, is_active: true, is_featured: true, main_image: 'https://images.unsplash.com/photo-1558326567-98ae2405596b?w=100' },
+          { id: 1, name: 'Torta de Chocolate', slug: 'torta-chocolate', price: 1200, is_active: true, is_featured: true, main_image: 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=100' },
+          { id: 2, name: 'Torta de Vainilla', slug: 'torta-vainilla', price: 1350, is_active: true, is_featured: true, main_image: 'https://images.unsplash.com/photo-1565958011703-44f9829ba187?w=100' },
+          { id: 3, name: 'Torta Red Velvet', slug: 'torta-red-velvet', price: 1400, is_active: true, is_featured: false, main_image: 'https://images.unsplash.com/photo-1586788680434-30d324b2d46f?w=100' },
+          { id: 4, name: 'Box Dulce Sorpresa', slug: 'box-dulce-sorpresa', price: 950, is_active: true, is_featured: true, main_image: 'https://images.unsplash.com/photo-1558326567-98ae2405596b?w=100' },
         ]);
         this.loading.set(false);
       },

@@ -145,13 +145,8 @@ interface Category {
                         <button 
                           class="btn-primary-sm"
                           (click)="addToCart(product)"
-                          [disabled]="product.stock <= 0"
                         >
-                          @if (product.stock <= 0) {
-                            Agotado
-                          } @else {
-                            Agregar
-                          }
+                          Agregar
                         </button>
                       </div>
                     </div>
@@ -792,12 +787,12 @@ export class ShopComponent implements OnInit {
   loadMockProducts() {
     // Fallback mock data
     const mockProducts: Product[] = [
-      { id: 1, name: 'Torta de Chocolate', slug: 'torta-chocolate', price: 1200, stock: 10, is_featured: true, images: [], main_image: 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=400', short_description: 'Deliciosa torta de chocolate con ganache' },
-      { id: 2, name: 'Torta de Vainilla con Frutos Rojos', slug: 'torta-vainilla-frutos-rojos', price: 1350, stock: 8, is_featured: true, images: [], main_image: 'https://images.unsplash.com/photo-1565958011703-44f9829ba187?w=400', short_description: 'Suave vainilla con crema y frutos rojos' },
-      { id: 3, name: 'Torta Red Velvet', slug: 'torta-red-velvet', price: 1400, stock: 6, is_featured: true, images: [], main_image: 'https://images.unsplash.com/photo-1586788680434-30d324b2d46f?w=400', short_description: 'Clásica red velvet con frosting de queso crema' },
-      { id: 4, name: 'Torta de Dulce de Leche', slug: 'torta-dulce-leche', price: 1300, stock: 10, is_featured: true, images: [], main_image: 'https://images.unsplash.com/photo-1621303837174-89787a7d4729?w=400', short_description: 'Irresistible dulce de leche uruguayo' },
-      { id: 5, name: 'Torta Personalizada Floral', slug: 'torta-personalizada-floral', price: 1800, compare_price: 2000, stock: 5, is_featured: false, images: [], main_image: 'https://images.unsplash.com/photo-1558301211-0d8c8ddee6ec?w=400', short_description: 'Decoración con flores de buttercream' },
-      { id: 6, name: 'Box Dulce Sorpresa', slug: 'box-dulce-sorpresa', price: 950, stock: 15, is_featured: true, images: [], main_image: 'https://images.unsplash.com/photo-1558326567-98ae2405596b?w=400', short_description: 'Caja con variedad de mini postres' },
+      { id: 1, name: 'Torta de Chocolate', slug: 'torta-chocolate', price: 1200, is_featured: true, images: [], main_image: 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=400', short_description: 'Deliciosa torta de chocolate con ganache' },
+      { id: 2, name: 'Torta de Vainilla con Frutos Rojos', slug: 'torta-vainilla-frutos-rojos', price: 1350, is_featured: true, images: [], main_image: 'https://images.unsplash.com/photo-1565958011703-44f9829ba187?w=400', short_description: 'Suave vainilla con crema y frutos rojos' },
+      { id: 3, name: 'Torta Red Velvet', slug: 'torta-red-velvet', price: 1400, is_featured: true, images: [], main_image: 'https://images.unsplash.com/photo-1586788680434-30d324b2d46f?w=400', short_description: 'Clásica red velvet con frosting de queso crema' },
+      { id: 4, name: 'Torta de Dulce de Leche', slug: 'torta-dulce-leche', price: 1300, is_featured: true, images: [], main_image: 'https://images.unsplash.com/photo-1621303837174-89787a7d4729?w=400', short_description: 'Irresistible dulce de leche uruguayo' },
+      { id: 5, name: 'Torta Personalizada Floral', slug: 'torta-personalizada-floral', price: 1800, compare_price: 2000, is_featured: false, images: [], main_image: 'https://images.unsplash.com/photo-1558301211-0d8c8ddee6ec?w=400', short_description: 'Decoración con flores de buttercream' },
+      { id: 6, name: 'Box Dulce Sorpresa', slug: 'box-dulce-sorpresa', price: 950, is_featured: true, images: [], main_image: 'https://images.unsplash.com/photo-1558326567-98ae2405596b?w=400', short_description: 'Caja con variedad de mini postres' },
     ];
     this.products.set(mockProducts);
     this.totalProducts.set(mockProducts.length);

@@ -13,7 +13,6 @@ interface DashboardStats {
   pending_orders: number;
   total_revenue: number;
   total_users: number;
-  low_stock_products: number;
 }
 
 interface OrderSummary {
@@ -97,18 +96,6 @@ interface OrderSummary {
             <div class="stat-content">
               <span class="stat-value">{{ stats().total_users }}</span>
               <span class="stat-label">Usuarios</span>
-            </div>
-          </div>
-
-          <div class="stat-card" [class.warning]="stats().low_stock_products > 0">
-            <div class="stat-icon stock">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
-              </svg>
-            </div>
-            <div class="stat-content">
-              <span class="stat-value">{{ stats().low_stock_products }}</span>
-              <span class="stat-label">Productos con stock bajo (≤3)</span>
             </div>
           </div>
         </div>
@@ -321,11 +308,6 @@ interface OrderSummary {
       &.users {
         background-color: #E0E7FF;
         color: #4338CA;
-      }
-
-      &.stock {
-        background-color: #FEF3C7;
-        color: #D97706;
       }
     }
 
@@ -555,7 +537,6 @@ export class DashboardComponent implements OnInit {
     pending_orders: 0,
     total_revenue: 0,
     total_users: 0,
-    low_stock_products: 0,
   });
   recentOrders = signal<OrderSummary[]>([]);
   loadingOrders = signal(false);
@@ -573,7 +554,6 @@ export class DashboardComponent implements OnInit {
       pending_orders: 0,
       total_revenue: 0,
       total_users: 0,
-      low_stock_products: 0,
     };
     this.api.get<DashboardStats>('/admin/stats').pipe(
       catchError(() => of(defaultStats))

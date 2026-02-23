@@ -24,7 +24,6 @@ export interface Product {
   short_description?: string;
   price: number;
   compare_price?: number;
-  stock: number;
   is_featured: boolean;
   images: ProductImage[];
   main_image?: string;

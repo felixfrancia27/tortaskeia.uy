@@ -113,19 +113,11 @@ import { SeoService } from '@app/core/services/seo.service';
                 <p class="product-short-desc">{{ product()!.short_description }}</p>
               }
 
-              <!-- Stock Status -->
-              <div class="stock-status" [class.out-of-stock]="product()!.stock <= 0">
-                @if (product()!.stock > 0) {
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
-                  </svg>
-                  <span>En stock - Disponible</span>
-                } @else {
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>
-                  </svg>
-                  <span>Agotado - Consultá disponibilidad</span>
-                }
+              <div class="availability-note">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
+                </svg>
+                <span>Disponible - Pedido bajo consulta</span>
               </div>
 
               <!-- Quantity & Add to Cart -->
@@ -144,7 +136,7 @@ import { SeoService } from '@app/core/services/seo.service';
                 <button 
                   class="btn-add-cart"
                   (click)="addToCart()"
-                  [disabled]="product()!.stock <= 0 || (product()!.has_sizes && !selectedSize())"
+                  [disabled]="product()!.has_sizes && !selectedSize()"
                 >
                   @if (addedToCart()) {
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -443,7 +435,7 @@ import { SeoService } from '@app/core/services/seo.service';
         font-weight: 600;
       }
 
-      .stock-status {
+      .availability-note {
         display: flex;
         align-items: center;
         gap: var(--space-2);
@@ -454,11 +446,6 @@ import { SeoService } from '@app/core/services/seo.service';
         font-size: var(--text-sm);
         font-weight: 500;
         margin-bottom: var(--space-6);
-
-        &.out-of-stock {
-          background-color: #FEE2E2;
-          color: #991B1B;
-        }
       }
 
       .add-to-cart {
@@ -678,7 +665,6 @@ export class ProductComponent implements OnInit, OnDestroy {
         name: 'Torta de Chocolate',
         slug: 'torta-chocolate',
         price: 1200,
-        stock: 10,
         is_featured: true,
         images: [
           { id: 1, url: 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=600', is_main: true },
@@ -692,7 +678,6 @@ export class ProductComponent implements OnInit, OnDestroy {
         name: 'Torta de Vainilla con Frutos Rojos',
         slug: 'torta-vainilla-frutos-rojos',
         price: 1350,
-        stock: 8,
         is_featured: true,
         images: [
           { id: 2, url: 'https://images.unsplash.com/photo-1565958011703-44f9829ba187?w=600', is_main: true },
@@ -722,7 +707,7 @@ export class ProductComponent implements OnInit, OnDestroy {
       type: 'product',
       price: product.price,
       currency: 'UYU',
-      availability: product.stock > 0 ? 'InStock' : 'OutOfStock',
+      availability: 'InStock',
       brand: 'Tortaskeia',
       category: 'Tortas',
     });
@@ -734,7 +719,7 @@ export class ProductComponent implements OnInit, OnDestroy {
       image: product.main_image || '',
       price: product.price,
       currency: 'UYU',
-      availability: product.stock > 0 ? 'InStock' : 'OutOfStock',
+      availability: 'InStock',
       sku: product.slug,
       brand: 'Tortaskeia',
       category: 'Tortas',
