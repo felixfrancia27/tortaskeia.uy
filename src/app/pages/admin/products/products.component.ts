@@ -5,6 +5,10 @@ import { AdminLayoutComponent } from '../admin-layout/admin-layout.component';
 import { ApiService } from '@app/core/services/api.service';
 import { resolveImageUrl } from '@app/core/utils/image-url';
 
+interface ProductImage {
+  url?: string;
+}
+
 interface Product {
   id: number;
   name: string;
@@ -14,6 +18,7 @@ interface Product {
   is_active: boolean;
   is_featured: boolean;
   main_image?: string;
+  images?: ProductImage[];
   category?: { name: string };
 }
 
@@ -57,7 +62,7 @@ interface Product {
                     <td>
                       <div class="product-cell">
                         <img 
-                          [src]="resolveImageUrl(product.main_image || (product as any).images?.[0]?.url) || 'assets/images/placeholder.jpg'" 
+                          [src]="getProductImageUrl(product)" 
                           [alt]="product.name"
                         />
                         <div>
@@ -301,10 +306,14 @@ interface Product {
 })
 export class AdminProductsComponent implements OnInit {
   private api = inject(ApiService);
-  readonly resolveImageUrl = resolveImageUrl;
 
   products = signal<Product[]>([]);
   loading = signal(true);
+
+  getProductImageUrl(product: Product): string {
+    const url = product.main_image ?? product.images?.[0]?.url;
+    return resolveImageUrl(url) || 'assets/images/placeholder.jpg';
+  }
 
   ngOnInit() {
     this.loadProducts();
