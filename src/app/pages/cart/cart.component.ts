@@ -3,6 +3,7 @@ import { CommonModule, CurrencyPipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CartService, CartItem } from '@app/core/services/cart.service';
+import { resolveImageUrl } from '@app/core/utils/image-url';
 
 @Component({
   selector: 'app-cart',
@@ -30,7 +31,7 @@ import { CartService, CartItem } from '@app/core/services/cart.service';
               @for (item of cart.items(); track item.id) {
                 <div class="cart-item">
                   <a [routerLink]="['/tortas', item.product.slug]" class="item-image">
-                    <img [src]="item.product.main_image || 'assets/images/placeholder.jpg'" [alt]="item.product.name" />
+                    <img [src]="resolveImageUrl(item.product.main_image) || 'assets/images/placeholder.jpg'" [alt]="item.product.name" />
                   </a>
                   
                   <div class="item-details">
@@ -380,6 +381,7 @@ import { CartService, CartItem } from '@app/core/services/cart.service';
 })
 export class CartComponent implements OnInit {
   cart = inject(CartService);
+  readonly resolveImageUrl = resolveImageUrl;
 
   ngOnInit(): void {
     this.cart.fetchCartFromApi();

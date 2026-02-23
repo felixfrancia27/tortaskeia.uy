@@ -1,6 +1,8 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { ApiService } from './api.service';
+import { resolveImageUrl } from '@app/core/utils/image-url';
 
 export interface ProductImage {
   id: number;
@@ -59,15 +61,40 @@ export interface ProductFilters {
 export class ProductsService {
   private api = inject(ApiService);
 
+  /** Normaliza producto: resuelve URLs de imágenes al dominio del API y asegura main_image. */
+  private normalizeProduct(p: Product): Product {
+    const images = (p.images || []).map((img) => ({
+      ...img,
+      url: resolveImageUrl(img.url),
+    }));
+    const mainImage = p.main_image
+      ? resolveImageUrl(p.main_image)
+      : images.length > 0
+        ? images[0].url
+        : undefined;
+    return { ...p, images, main_image: mainImage };
+  }
+
   getProducts(filters: ProductFilters = {}): Observable<ProductListResponse> {
-    return this.api.get<ProductListResponse>('/products', filters as Record<string, string | number | boolean>);
+    return this.api
+      .get<ProductListResponse>('/products', filters as Record<string, string | number | boolean>)
+      .pipe(
+        map((res) => ({
+          ...res,
+          items: res.items.map((p) => this.normalizeProduct(p)),
+        }))
+      );
   }
 
   getFeaturedProducts(limit: number = 6): Observable<Product[]> {
-    return this.api.get<Product[]>('/products/featured', { limit });
+    return this.api
+      .get<Product[]>('/products/featured', { limit })
+      .pipe(map((list) => list.map((p) => this.normalizeProduct(p))));
   }
 
   getProduct(slug: string): Observable<Product> {
-    return this.api.get<Product>(`/products/${slug}`);
+    return this.api
+      .get<Product>(`/products/${slug}`)
+      .pipe(map((p) => this.normalizeProduct(p)));
   }
 }

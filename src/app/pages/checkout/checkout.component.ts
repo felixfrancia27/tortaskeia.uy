@@ -5,6 +5,7 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { CartService } from '@app/core/services/cart.service';
 import { OrdersService, CreateOrderData } from '@app/core/services/orders.service';
 import { AuthService } from '@app/core/services/auth.service';
+import { resolveImageUrl } from '@app/core/utils/image-url';
 
 interface CalendarDay {
   date: Date;
@@ -327,7 +328,7 @@ interface CalendarDay {
               <div class="order-items">
                 @for (item of cart.items(); track item.id) {
                   <div class="order-item">
-                    <img [src]="item.product.main_image || 'assets/images/placeholder.jpg'" [alt]="item.product.name" />
+                    <img [src]="resolveImageUrl(item.product.main_image) || 'assets/images/placeholder.jpg'" [alt]="item.product.name" />
                     <div class="item-details">
                       <span class="item-name">{{ item.product.name }}</span>
                       @if (item.notes) {
@@ -951,6 +952,7 @@ export class CheckoutComponent implements OnInit {
   private fb = inject(FormBuilder);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
+  readonly resolveImageUrl = resolveImageUrl;
   cart = inject(CartService);
   private ordersService = inject(OrdersService);
   private auth = inject(AuthService);
