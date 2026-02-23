@@ -131,10 +131,14 @@ interface Category {
                         <p class="product-desc">{{ product.short_description }}</p>
                       }
                       <div class="product-price">
-                        @if (product.compare_price) {
+                        @if (product.compare_price && !product.has_sizes) {
                           <span class="price-old">{{ product.compare_price | currency:'UYU':'$':'1.0-0' }}</span>
                         }
-                        <span class="price-current">{{ product.price | currency:'UYU':'$':'1.0-0' }}</span>
+                        @if (product.has_sizes) {
+                          <span class="price-current">Desde {{ product.price | currency:'UYU':'$':'1.0-0' }}</span>
+                        } @else {
+                          <span class="price-current">{{ product.price | currency:'UYU':'$':'1.0-0' }}</span>
+                        }
                       </div>
                       <div class="product-actions">
                         <a [routerLink]="['/tortas', product.slug]" class="btn-secondary-sm">Ver detalles</a>

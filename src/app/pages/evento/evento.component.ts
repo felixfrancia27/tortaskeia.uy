@@ -1,6 +1,7 @@
-import { Component, computed, signal, inject } from '@angular/core';
+import { Component, computed, signal, inject, OnInit } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CartService } from '@app/core/services/cart.service';
+import { ApiService } from '@app/core/services/api.service';
 
 export type EventoTipo = 'desayunos' | 'cumpleanos' | 'meriendas' | 'bodas';
 
@@ -68,6 +69,23 @@ const EVENTOS_CONFIG: Record<EventoTipo, EventoConfig> = {
     ],
   },
 };
+
+/** Respuesta del backend: addOns pueden tener id numérico y max_qty */
+interface EventConfigApi {
+  id: EventoTipo;
+  title: string;
+  subtitle: string;
+  addOns: Array<{
+    id: number | string;
+    label: string;
+    description?: string | null;
+    price: number;
+    max_qty?: number | null;
+    maxQty?: number | null;
+    sort_order?: number;
+    is_active?: boolean;
+  }>;
+}
 
 @Component({
   selector: 'app-evento',
@@ -512,17 +530,49 @@ const EVENTOS_CONFIG: Record<EventoTipo, EventoConfig> = {
     }
   `],
 })
-export class EventoComponent {
+export class EventoComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private cartService = inject(CartService);
+  private api = inject(ApiService);
+
+  /** Config cargada desde API (por tipo). Si no hay API, queda null y se usa fallback. */
+  eventConfigFromApi = signal<Record<EventoTipo, EventoConfig> | null>(null);
 
   /** Tipo desde la URL */
   config = computed<EventoConfig | null>(() => {
     const t = this.route.snapshot.paramMap.get('tipo') as EventoTipo | null;
-    if (!t || !EVENTOS_CONFIG[t]) return null;
-    return EVENTOS_CONFIG[t];
+    if (!t) return null;
+    const fromApi = this.eventConfigFromApi();
+    if (fromApi && fromApi[t]) return fromApi[t];
+    if (EVENTOS_CONFIG[t]) return EVENTOS_CONFIG[t];
+    return null;
   });
+
+  ngOnInit(): void {
+    this.api.get<Record<EventoTipo, EventConfigApi>>('/event-config').subscribe({
+      next: (data) => {
+        const mapped: Record<EventoTipo, EventoConfig> = {} as Record<EventoTipo, EventoConfig>;
+        for (const tipo of ['desayunos', 'cumpleanos', 'meriendas', 'bodas'] as EventoTipo[]) {
+          const raw = data[tipo];
+          if (!raw) continue;
+          const addOns: AddOn[] = (raw.addOns || [])
+            .filter((a) => a.is_active !== false)
+            .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0))
+            .map((a) => ({
+              id: String(a.id),
+              label: a.label,
+              description: a.description ?? undefined,
+              price: Number(a.price) || 0,
+              maxQty: a.max_qty ?? a.maxQty ?? undefined,
+            }));
+          mapped[tipo] = { id: raw.id, title: raw.title, subtitle: raw.subtitle, addOns };
+        }
+        this.eventConfigFromApi.set(mapped);
+      },
+      error: () => {},
+    });
+  }
 
   /** id -> quantity (1 por defecto) */
   selectedQties = signal<Record<string, number>>({});

@@ -37,6 +37,9 @@ import { CartService, CartItem } from '@app/core/services/cart.service';
                     <a [routerLink]="['/tortas', item.product.slug]" class="item-name">
                       {{ item.product.name }}
                     </a>
+                    @if (item.size) {
+                      <span class="item-size">Tamaño: {{ item.size }}</span>
+                    }
                     <span class="item-price">{{ item.product.price | currency:'UYU':'$':'1.0-0' }}</span>
                     @if (item.notes) {
                       <p class="item-notes">{{ item.notes }}</p>
@@ -207,6 +210,14 @@ import { CartService, CartItem } from '@app/core/services/cart.service';
         &:hover {
           color: var(--brand);
         }
+      }
+
+      .item-size {
+        display: block;
+        font-size: var(--text-xs);
+        color: var(--brand);
+        font-weight: 500;
+        margin-top: var(--space-1);
       }
 
       .item-price {

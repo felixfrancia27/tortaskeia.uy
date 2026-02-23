@@ -136,6 +136,11 @@ export const routes: Routes = [
         title: 'Portadas | Admin',
       },
       {
+        path: 'eventos',
+        loadComponent: () => import('./pages/admin/event-addons/event-addons.component').then(m => m.AdminEventAddonsComponent),
+        title: 'Eventos | Admin',
+      },
+      {
         path: 'ordenes',
         loadComponent: () => import('./pages/admin/orders/orders.component').then(m => m.AdminOrdersComponent),
         title: 'Órdenes | Admin',

@@ -16,6 +16,8 @@ export interface CartItem {
   };
   quantity: number;
   notes?: string;
+  /** Tamaño elegido (ej. "Mediano") cuando el producto tiene precios por tamaño */
+  size?: string;
   subtotal: number;
 }
 
@@ -110,9 +112,21 @@ export class CartService {
 
   /**
    * Agrega un producto del catálogo al carrito.
+   * Para productos con tamaños (tortas), pasar size y price en options.
    */
-  addItem(product: CartItem['product'], quantity: number = 1, notes?: string): Observable<CartApiResponse | null> {
-    const body = { product_id: product.id, quantity, notes: notes || null };
+  addItem(
+    product: CartItem['product'],
+    quantity: number = 1,
+    notes?: string,
+    options?: { size?: string; price?: number }
+  ): Observable<CartApiResponse | null> {
+    const body: Record<string, unknown> = {
+      product_id: product.id,
+      quantity,
+      notes: notes || null,
+    };
+    if (options?.size) body['size'] = options.size;
+    if (options?.price != null) body['price'] = options.price;
     return this.api.post<CartApiResponse>('/cart/items', body).pipe(
       tap((res) => {
         this.saveSessionIdFromResponse(res ?? null);

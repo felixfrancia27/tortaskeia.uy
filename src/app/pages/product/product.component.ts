@@ -2,7 +2,7 @@ import { Component, inject, signal, OnInit, OnDestroy, computed } from '@angular
 import { CommonModule, CurrencyPipe } from '@angular/common';
 import { ActivatedRoute, RouterLink, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { ProductsService, Product } from '@app/core/services/products.service';
+import { ProductsService, Product, ProductSize } from '@app/core/services/products.service';
 import { CartService } from '@app/core/services/cart.service';
 import { SeoService } from '@app/core/services/seo.service';
 
@@ -76,11 +76,38 @@ import { SeoService } from '@app/core/services/seo.service';
               <h1 class="product-title">{{ product()!.name }}</h1>
               
               <div class="product-price">
-                @if (product()!.compare_price) {
+                @if (product()!.compare_price && !product()!.has_sizes) {
                   <span class="price-old">{{ product()!.compare_price | currency:'UYU':'$':'1.0-0' }}</span>
                 }
-                <span class="price-current">{{ product()!.price | currency:'UYU':'$':'1.0-0' }}</span>
+                @if (product()!.has_sizes && product()!.sizes?.length) {
+                  @if (selectedSize()) {
+                    <span class="price-current">{{ selectedSize()!.price | currency:'UYU':'$':'1.0-0' }}</span>
+                  } @else {
+                    <span class="price-current">Desde {{ displayPriceFrom() | currency:'UYU':'$':'1.0-0' }}</span>
+                  }
+                } @else {
+                  <span class="price-current">{{ product()!.price | currency:'UYU':'$':'1.0-0' }}</span>
+                }
               </div>
+
+              @if (product()!.has_sizes && product()!.sizes?.length) {
+                <div class="size-selector">
+                  <label class="size-label">Elegí el tamaño</label>
+                  <div class="size-options">
+                    @for (sz of product()!.sizes; track sz.name) {
+                      <button
+                        type="button"
+                        class="size-option"
+                        [class.selected]="selectedSize()?.name === sz.name"
+                        (click)="selectSize(sz)"
+                      >
+                        <span class="size-name">{{ sz.name }}</span>
+                        <span class="size-price">{{ sz.price | currency:'UYU':'$':'1.0-0' }}</span>
+                      </button>
+                    }
+                  </div>
+                </div>
+              }
 
               @if (product()!.short_description) {
                 <p class="product-short-desc">{{ product()!.short_description }}</p>
@@ -117,7 +144,7 @@ import { SeoService } from '@app/core/services/seo.service';
                 <button 
                   class="btn-add-cart"
                   (click)="addToCart()"
-                  [disabled]="product()!.stock <= 0"
+                  [disabled]="product()!.stock <= 0 || (product()!.has_sizes && !selectedSize())"
                 >
                   @if (addedToCart()) {
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -364,6 +391,58 @@ import { SeoService } from '@app/core/services/seo.service';
         margin-bottom: var(--space-4);
       }
 
+      .size-selector {
+        margin-bottom: var(--space-6);
+      }
+
+      .size-label {
+        display: block;
+        font-size: var(--text-sm);
+        font-weight: 600;
+        color: var(--ink);
+        margin-bottom: var(--space-3);
+      }
+
+      .size-options {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--space-2);
+      }
+
+      .size-option {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: var(--space-3) var(--space-4);
+        min-width: 90px;
+        border: 2px solid #E0D5C8;
+        border-radius: var(--radius-md);
+        background: white;
+        cursor: pointer;
+        transition: border-color 0.15s, background 0.15s;
+      }
+
+      .size-option:hover {
+        border-color: var(--brand);
+        background: rgba(247, 87, 12, 0.04);
+      }
+
+      .size-option.selected {
+        border-color: var(--brand);
+        background: rgba(247, 87, 12, 0.1);
+      }
+
+      .size-option .size-name {
+        font-weight: 600;
+        color: var(--ink);
+      }
+
+      .size-option .size-price {
+        font-size: var(--text-sm);
+        color: var(--brand);
+        font-weight: 600;
+      }
+
       .stock-status {
         display: flex;
         align-items: center;
@@ -537,14 +616,24 @@ export class ProductComponent implements OnInit, OnDestroy {
   product = signal<Product | null>(null);
   loading = signal(true);
   selectedImage = signal('');
+  selectedSize = signal<ProductSize | null>(null);
   quantity = signal(1);
   notes = signal('');
   addedToCart = signal(false);
 
+  /** Precio mínimo para mostrar "Desde $X" cuando tiene tamaños */
+  displayPriceFrom = computed(() => {
+    const p = this.product();
+    if (!p?.has_sizes || !p.sizes?.length) return p?.price ?? 0;
+    return Math.min(...p.sizes.map(s => s.price));
+  });
+
   whatsappUrl = computed(() => {
     const p = this.product();
     if (!p) return '';
-    const text = encodeURIComponent(`Hola! Me interesa el producto: ${p.name} ($${p.price})`);
+    const price = this.selectedSize()?.price ?? p.price;
+    const sizeInfo = this.selectedSize() ? ` - Tamaño ${this.selectedSize()!.name}` : '';
+    const text = encodeURIComponent(`Hola! Me interesa el producto: ${p.name}${sizeInfo} ($${price})`);
     return `https://wa.me/59899123456?text=${text}`;
   });
 
@@ -557,13 +646,21 @@ export class ProductComponent implements OnInit, OnDestroy {
     });
   }
 
+  selectSize(sz: ProductSize) {
+    this.selectedSize.set(sz);
+  }
+
   loadProduct(slug: string) {
     this.loading.set(true);
+    this.selectedSize.set(null);
     
     this.productsService.getProduct(slug).subscribe({
       next: (product) => {
         this.product.set(product);
         this.selectedImage.set(product.main_image || product.images[0]?.url || '');
+        if (product.has_sizes && product.sizes?.length) {
+          this.selectedSize.set(product.sizes[0]);
+        }
         this.updateMeta(product);
         this.loading.set(false);
       },
@@ -684,16 +781,22 @@ export class ProductComponent implements OnInit, OnDestroy {
     const p = this.product();
     if (!p) return;
 
+    const price = p.has_sizes && this.selectedSize() ? this.selectedSize()!.price : p.price;
+    const options = p.has_sizes && this.selectedSize()
+      ? { size: this.selectedSize()!.name, price }
+      : undefined;
+
     this.cartService.addItem(
       {
         id: p.id,
         name: p.name,
         slug: p.slug,
-        price: p.price,
+        price,
         main_image: p.main_image,
       },
       this.quantity(),
-      this.notes() || undefined
+      this.notes() || undefined,
+      options
     ).subscribe({
       next: () => {
         this.addedToCart.set(true);

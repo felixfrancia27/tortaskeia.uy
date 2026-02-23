@@ -9,6 +9,11 @@ export interface ProductImage {
   is_main: boolean;
 }
 
+export interface ProductSize {
+  name: string;
+  price: number;
+}
+
 export interface Product {
   id: number;
   name: string;
@@ -24,6 +29,10 @@ export interface Product {
   category_id?: number;
   meta_title?: string;
   meta_description?: string;
+  /** Si es true, el producto tiene precios por tamaño (tortas). */
+  has_sizes?: boolean;
+  /** Tamaños con precio cuando has_sizes es true. */
+  sizes?: ProductSize[];
 }
 
 export interface ProductListResponse {

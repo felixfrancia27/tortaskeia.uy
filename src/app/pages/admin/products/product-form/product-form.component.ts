@@ -716,6 +716,7 @@ export class ProductFormComponent implements OnInit {
           sizes: undefined,
         });
         if (product.has_sizes) {
+          this.form.get('price')?.disable();
           this.form.get('price')?.clearValidators();
           this.form.get('price')?.updateValueAndValidity();
         }
