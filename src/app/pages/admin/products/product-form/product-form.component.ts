@@ -1,9 +1,10 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, Router, ActivatedRoute } from '@angular/router';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, FormArray, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AdminLayoutComponent } from '../../admin-layout/admin-layout.component';
 import { ApiService } from '@app/core/services/api.service';
+import { environment } from '@env/environment';
 
 interface Category {
   id: number;
@@ -79,7 +80,7 @@ interface Category {
 
               <div class="form-row">
                 <div class="form-group">
-                  <label for="price">Precio (UYU) *</label>
+                  <label for="price">Precio (UYU) {{ hasSizes() ? '' : '*' }}</label>
                   <input 
                     type="number" 
                     id="price" 
@@ -87,7 +88,11 @@ interface Category {
                     class="input"
                     placeholder="1200"
                     min="0"
+                    [disabled]="hasSizes()"
                   />
+                  @if (hasSizes()) {
+                    <small>Se usa el precio por tamaño abajo</small>
+                  }
                 </div>
 
                 <div class="form-group">
@@ -103,6 +108,43 @@ interface Category {
                   <small>Para mostrar descuento</small>
                 </div>
               </div>
+
+              <div class="form-group">
+                <label class="checkbox-label">
+                  <input type="checkbox" formControlName="has_sizes" (change)="onHasSizesChange()" />
+                  <span>Tiene tamaños (precio según tamaño)</span>
+                </label>
+                <small>Para tortas: podés definir Chico, Mediano, Grande, etc. con precio por cada uno.</small>
+              </div>
+
+              @if (hasSizes()) {
+                <div class="sizes-block">
+                  <h4>Tamaños y precios</h4>
+                  <div formArrayName="sizes" class="sizes-list">
+                    @for (ctrl of sizesArray.controls; track $index; let i = $index) {
+                      <div [formGroupName]="i" class="size-row">
+                        <input 
+                          type="text" 
+                          formControlName="name"
+                          class="input size-name"
+                          placeholder="Ej: Chico, Mediano, Grande"
+                        />
+                        <input 
+                          type="number" 
+                          formControlName="price"
+                          class="input size-price"
+                          placeholder="Precio UYU"
+                          min="0"
+                        />
+                        <button type="button" class="btn-remove-size" (click)="removeSize(i)" title="Quitar tamaño">×</button>
+                      </div>
+                    }
+                  </div>
+                  <button type="button" class="btn-add-size" (click)="addSize()">
+                    + Agregar tamaño
+                  </button>
+                </div>
+              }
 
               <div class="form-row">
                 <div class="form-group">
@@ -163,15 +205,35 @@ interface Category {
               <div class="sidebar-card">
                 <h3>Imagen principal</h3>
                 <div class="form-group">
+                  <div class="upload-zone">
+                    <input
+                      #fileInput
+                      type="file"
+                      accept="image/*"
+                      class="input-file"
+                      (change)="onFileSelected($event)"
+                    />
+                    <button type="button" class="btn-upload" (click)="fileInput.click()" [disabled]="uploading()">
+                      @if (uploading()) {
+                        Subiendo...
+                      } @else {
+                        Subir imagen
+                      }
+                    </button>
+                  </div>
+                  <p class="upload-hint">o pegá una URL debajo</p>
                   <input 
                     type="text" 
                     formControlName="main_image"
                     class="input"
-                    placeholder="URL de la imagen"
+                    placeholder="https://... o /uploads/..."
                   />
-                  @if (form.get('main_image')?.value) {
+                  @if (uploadError()) {
+                    <p class="upload-error">{{ uploadError() }}</p>
+                  }
+                  @if (mainImagePreviewUrl()) {
                     <div class="image-preview">
-                      <img [src]="form.get('main_image')?.value" alt="Preview" />
+                      <img [src]="mainImagePreviewUrl()" alt="Vista previa" />
                     </div>
                   }
                 </div>
@@ -356,6 +418,116 @@ interface Category {
       }
     }
 
+    .sizes-block {
+      margin-top: var(--space-4);
+      padding: var(--space-4);
+      background: var(--surface);
+      border-radius: var(--radius-lg);
+
+      h4 {
+        font-size: var(--text-sm);
+        font-weight: 600;
+        color: var(--ink);
+        margin-bottom: var(--space-3);
+      }
+    }
+
+    .sizes-list {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-3);
+      margin-bottom: var(--space-3);
+    }
+
+    .size-row {
+      display: grid;
+      grid-template-columns: 1fr 120px 40px;
+      gap: var(--space-2);
+      align-items: center;
+    }
+
+    .size-name { min-width: 0; }
+    .size-price { text-align: right; }
+
+    .btn-remove-size {
+      width: 40px;
+      height: 44px;
+      padding: 0;
+      border: 1px solid #E0D5C8;
+      background: white;
+      color: var(--ink-muted);
+      font-size: 1.25rem;
+      line-height: 1;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+    }
+    .btn-remove-size:hover {
+      background: #FEE2E2;
+      color: #991B1B;
+      border-color: #FCA5A5;
+    }
+
+    .btn-add-size {
+      padding: var(--space-2) var(--space-4);
+      font-size: var(--text-sm);
+      font-weight: 500;
+      color: var(--brand);
+      background: rgba(247, 87, 12, 0.1);
+      border: 1px dashed var(--brand);
+      border-radius: var(--radius-md);
+      cursor: pointer;
+    }
+    .btn-add-size:hover {
+      background: rgba(247, 87, 12, 0.15);
+    }
+
+    .upload-zone {
+      display: flex;
+      gap: var(--space-2);
+      margin-bottom: var(--space-2);
+    }
+
+    .input-file {
+      position: absolute;
+      width: 0.1px;
+      height: 0.1px;
+      opacity: 0;
+      overflow: hidden;
+      z-index: -1;
+    }
+
+    .btn-upload {
+      padding: var(--space-2) var(--space-4);
+      font-size: var(--text-sm);
+      font-weight: 500;
+      color: var(--brand);
+      background: rgba(247, 87, 12, 0.1);
+      border: 1px solid var(--brand);
+      border-radius: var(--radius-md);
+      cursor: pointer;
+
+      &:hover:not(:disabled) {
+        background: rgba(247, 87, 12, 0.15);
+      }
+
+      &:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+      }
+    }
+
+    .upload-hint {
+      font-size: var(--text-xs);
+      color: var(--ink-muted);
+      margin-bottom: var(--space-2);
+    }
+
+    .upload-error {
+      font-size: var(--text-sm);
+      color: #DC2626;
+      margin-top: var(--space-2);
+    }
+
     .image-preview {
       margin-top: var(--space-3);
       border-radius: var(--radius-md);
@@ -440,6 +612,8 @@ export class ProductFormComponent implements OnInit {
     compare_price: [null],
     stock: [0, [Validators.required, Validators.min(0)]],
     sku: [''],
+    has_sizes: [false],
+    sizes: this.fb.array<FormGroup>([]),
     is_active: [true],
     is_featured: [false],
     category_id: [null],
@@ -451,7 +625,52 @@ export class ProductFormComponent implements OnInit {
   categories = signal<Category[]>([]);
   isEdit = signal(false);
   saving = signal(false);
+  uploading = signal(false);
+  uploadError = signal<string | null>(null);
   productId: number | null = null;
+
+  get sizesArray(): FormArray {
+    return this.form.get('sizes') as FormArray;
+  }
+
+  hasSizes(): boolean {
+    return !!this.form.get('has_sizes')?.value;
+  }
+
+  addSize(): void {
+    this.sizesArray.push(this.fb.group({
+      name: ['', Validators.required],
+      price: [null, [Validators.required, Validators.min(0)]],
+    }));
+  }
+
+  removeSize(index: number): void {
+    this.sizesArray.removeAt(index);
+  }
+
+  onHasSizesChange(): void {
+    if (this.hasSizes() && this.sizesArray.length === 0) {
+      this.addSize();
+    }
+    if (!this.hasSizes()) {
+      while (this.sizesArray.length) this.sizesArray.removeAt(0);
+      this.form.get('price')?.enable();
+      this.form.get('price')?.setValidators([Validators.required, Validators.min(0)]);
+    } else {
+      this.form.get('price')?.disable();
+      this.form.get('price')?.clearValidators();
+    }
+    this.form.get('price')?.updateValueAndValidity();
+  }
+
+  /** Resuelve la URL de la imagen para el preview: /uploads/ → API base; http → tal cual */
+  mainImagePreviewUrl(): string {
+    const url = this.form.get('main_image')?.value;
+    if (!url) return '';
+    if (url.startsWith('http')) return url;
+    const apiBase = environment.apiUrl.replace(/\/api\/?$/, '');
+    return url.startsWith('/') ? apiBase + url : apiBase + '/' + url;
+  }
 
   ngOnInit() {
     this.loadCategories();
@@ -482,14 +701,53 @@ export class ProductFormComponent implements OnInit {
   loadProduct(id: number) {
     this.api.get<any>(`/admin/products/${id}`).subscribe({
       next: (product) => {
+        const sizes = product.sizes && Array.isArray(product.sizes) ? product.sizes : [];
+        while (this.sizesArray.length) this.sizesArray.removeAt(0);
+        sizes.forEach((s: { name: string; price: number }) => {
+          this.sizesArray.push(this.fb.group({
+            name: [s.name ?? '', Validators.required],
+            price: [s.price ?? null, [Validators.required, Validators.min(0)]],
+          }));
+        });
         this.form.patchValue({
           ...product,
           main_image: product.main_image || product.images?.[0]?.url || '',
+          has_sizes: !!product.has_sizes,
+          sizes: undefined,
         });
+        if (product.has_sizes) {
+          this.form.get('price')?.clearValidators();
+          this.form.get('price')?.updateValueAndValidity();
+        }
       },
       error: () => {
         alert('Error al cargar el producto');
         this.router.navigate(['/admin/productos']);
+      },
+    });
+  }
+
+  onFileSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const file = input?.files?.[0];
+    if (!file || !file.type.startsWith('image/')) {
+      this.uploadError.set('Elegí un archivo de imagen (JPG, PNG, etc.).');
+      return;
+    }
+    this.uploadError.set(null);
+    this.uploading.set(true);
+    this.api.uploadFile('/admin/upload', file).subscribe({
+      next: (res) => {
+        this.uploading.set(false);
+        if (res?.url) {
+          this.form.patchValue({ main_image: res.url });
+        }
+        input.value = '';
+      },
+      error: (err) => {
+        this.uploading.set(false);
+        this.uploadError.set(err.error?.detail || err.message || 'Error al subir la imagen.');
+        input.value = '';
       },
     });
   }
@@ -501,13 +759,27 @@ export class ProductFormComponent implements OnInit {
     }
 
     this.saving.set(true);
-    const data = this.form.value;
+    const data = { ...this.form.value };
 
     // Convert main_image to images array
     if (data.main_image) {
       data.images = [data.main_image];
     }
     delete data.main_image;
+
+    if (!data.has_sizes) {
+      data.has_sizes = false;
+      data.sizes = [];
+    } else {
+      data.sizes = (data.sizes || []).filter((s: { name: string; price: number }) => s?.name?.trim() && s?.price != null);
+      if (data.sizes.length === 0) {
+        this.saving.set(false);
+        alert('Si el producto tiene tamaños, agregá al menos un tamaño con nombre y precio.');
+        return;
+      }
+      // Precio base para listados (mínimo de los tamaños)
+      data.price = Math.min(...data.sizes.map((s: { price: number }) => Number(s.price)));
+    }
 
     const request = this.isEdit()
       ? this.api.put(`/admin/products/${this.productId}`, data)

@@ -25,3 +25,14 @@ Este repo contiene **solo el frontend** (Angular en la raíz). El backend está 
 - Conectar repo **tortaskeia.uy-backend**.
 - Añadir PostgreSQL y variables (ver README del backend).
 - Start: `uvicorn app.main:app --host 0.0.0.0 --port $PORT`.
+
+### Endpoint de subida de imágenes (admin/productos)
+
+El frontend espera un endpoint para subir imágenes de productos y que queden hosteadas en el sitio por HTTPS:
+
+- **Método:** `POST /api/admin/upload`
+- **Content-Type:** `multipart/form-data`
+- **Campo:** `file` (archivo imagen: JPG, PNG, etc.)
+- **Respuesta esperada:** `{ "url": "/uploads/productos/abc123.jpg" }` o URL absoluta `https://api.tortaskeia.uy/uploads/...`
+
+El backend debe guardar el archivo en disco (o en storage) y servir las imágenes por HTTPS (ej. `/uploads/` estático o CDN). La URL devuelta se guarda en el producto como `main_image` / `images`.

@@ -47,4 +47,14 @@ export class ApiService {
   delete<T>(endpoint: string): Observable<T> {
     return this.http.delete<T>(`${this.baseUrl}${endpoint}`);
   }
+
+  /**
+   * Sube un archivo (ej. imagen) al servidor.
+   * Espera respuesta { url: string } con la URL pública (absoluta o path /uploads/...).
+   */
+  uploadFile(endpoint: string, file: File): Observable<{ url: string }> {
+    const formData = new FormData();
+    formData.append('file', file, file.name);
+    return this.http.post<{ url: string }>(`${this.baseUrl}${endpoint}`, formData);
+  }
 }
